@@ -160,6 +160,12 @@
 - Added 7 REST integration tests covering AC-4.1–AC-4.7.
 - Traces to **FR-T01–FR-T07**, **FR-Q07–FR-Q08**, **AC-4.1–AC-4.7**.
 
+### Task B10 — Comment Service & Routes (2026-07-15)
+- Model, repository, and DTO already existed from B8; added validator, service, controller, and route.
+- `POST /tickets/:id/comments` validates ticket/user existence and returns 201 with comment DTO.
+- Added 4 REST integration tests covering AC-6.1–AC-6.4 and empty-message validation.
+- Traces to **FR-C01–FR-C04**, **AC-6.1–AC-6.4**, **AC-8.10**.
+
 ---
 
 ### Architecture Changes

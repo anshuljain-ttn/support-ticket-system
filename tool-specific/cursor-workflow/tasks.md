@@ -185,7 +185,7 @@
 ---
 
 ### Task B10: Comment Model, Service & Routes
-**Status:** Pending  
+**Status:** Complete  
 **Scope:**
 - `models/comment.model.ts`
 - `repositories/comment.repository.ts`
