@@ -1,8 +1,12 @@
+import { PageContainer } from '@/components/layout/page-container';
+
 export default function DashboardPage() {
   return (
-    <main className="flex flex-1 flex-col items-center justify-center p-8">
-      <h1 className="text-2xl font-semibold">Support Ticket Management System</h1>
-      <p className="mt-2 text-muted-foreground">Dashboard — implementation in progress</p>
-    </main>
+    <PageContainer
+      title="Dashboard"
+      description="Overview of ticket workload and recent activity."
+    >
+      <p className="text-muted-foreground">Dashboard content — implementation in progress.</p>
+    </PageContainer>
   );
 }

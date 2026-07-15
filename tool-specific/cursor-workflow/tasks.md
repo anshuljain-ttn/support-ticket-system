@@ -283,7 +283,7 @@
 ---
 
 ### Task C4: Layout & Navigation
-**Status:** Pending  
+**Status:** Complete  
 **Scope:**
 - `components/layout/header.tsx`
 - `components/layout/sidebar.tsx`

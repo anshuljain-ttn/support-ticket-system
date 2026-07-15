@@ -204,6 +204,12 @@
 - Added `getTicketStats()` to ticket service (client-side aggregation until a dedicated API exists).
 - Mutations invalidate list, detail, and stats queries as appropriate.
 
+### Task C4 — Layout & Navigation (2026-07-15)
+- Added `header.tsx`, `sidebar.tsx`, `page-container.tsx`, and `app-shell.tsx` with responsive mobile nav.
+- Added `app-providers.tsx` (Query + Sonner toast) and `components/ui/sonner.tsx`.
+- Updated root `layout.tsx` and all placeholder pages to use shared shell and page container.
+- Added `sonner` dependency for toast notifications.
+
 ---
 
 ### Architecture Changes
