@@ -153,6 +153,13 @@
 - Search unions ticket text matches with comment text matches.
 - 7 integration tests for service business logic.
 
+### Task B9 — Ticket Controller & Routes (2026-07-15)
+- Added `ticket.controller.ts` with handlers for list, search, detail, create, update, and status patch.
+- Added `ticket.routes.ts` with Zod validation on body, query, and params.
+- Mounted ticket routes in `routes/index.ts` (`/tickets`, `/tickets/search`, `/tickets/:id`, etc.).
+- Added 7 REST integration tests covering AC-4.1–AC-4.7.
+- Traces to **FR-T01–FR-T07**, **FR-Q07–FR-Q08**, **AC-4.1–AC-4.7**.
+
 ---
 
 ### Architecture Changes

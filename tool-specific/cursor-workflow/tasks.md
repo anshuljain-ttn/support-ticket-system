@@ -168,7 +168,7 @@
 ---
 
 ### Task B9: Ticket Controller & Routes
-**Status:** Pending  
+**Status:** Complete  
 **Scope:**
 - `controllers/ticket.controller.ts`
 - `routes/ticket.routes.ts`

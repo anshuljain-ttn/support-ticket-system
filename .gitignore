@@ -40,3 +40,6 @@ docker-data/
 # Misc
 .turbo/
 .vercel/
+
+# SSH keys (project-specific — never commit private keys)
+.ssh/
