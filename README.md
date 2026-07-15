@@ -2,19 +2,21 @@
 
 A production-quality support ticket application with JWT authentication, role-based access control, ownership rules, audit history, and a modern SaaS-style UI.
 
-> **Submission / AI workflow:** Start at **[SUBMISSION.md](SUBMISSION.md)** → **[tool-workflow.md](tool-workflow.md)** → `docs/` · `prompts/` · `artifacts/` · `tool-specific/`
+> **Submission / AI workflow:** Start at **[SUBMISSION.md](SUBMISSION.md)** → **[tool-workflow.md](tool-workflow.md)** → `docs/` · `ai-prompts/` · `artifacts/` · `tool-specific/`
 
 ## Submission & AI Workflow (Reviewer Entry Point)
 
 | What to review | Where |
 |----------------|-------|
 | **Checklist (human glance)** | **[SUBMISSION.md](SUBMISSION.md)** |
+| **Candidate info** | [`candidate-info.md`](candidate-info.md) |
+| **Submission artifacts** | Root: `requirements-analysis.md`, `acceptance-criteria.md`, `implementation-plan.md`, `design-notes.md`, `api-contract.md`, `test-strategy.md`, `debugging-notes.md`, `code-review-notes.md`, `reflection.md`, `pr-description.md` |
 | **Required workflow doc** | **[tool-workflow.md](tool-workflow.md)** |
 | **Form answers** | [`artifacts/form-answers.md`](artifacts/form-answers.md) |
 | **Design specs** | [`docs/`](docs/) — spec, architecture, acceptance criteria |
-| **Prompt log** | [`prompts/prompt-history.md`](prompts/prompt-history.md) |
+| **Prompt log** | [`ai-prompts/`](ai-prompts/) — [`ai-prompts/prompt-history.md`](ai-prompts/prompt-history.md) index |
 | **Iteration logs** | [`artifacts/implementation-log.md`](artifacts/implementation-log.md), [`artifacts/tasks.md`](artifacts/tasks.md) |
-| **Tool-specific (Cursor)** | [`tool-specific/cursor-workflow/`](tool-specific/cursor-workflow/) |
+| **Tool-specific (Cursor)** | [`tool-specific/cursor-workflow/`](tool-specific/cursor-workflow/) — spec, tasks, cursor rules |
 
 **Tool:** Cursor IDE (Agent mode) · **Method:** spec-first → phased prompts → test → log
 
@@ -71,16 +73,18 @@ Run `npm run seed` in `backend/` on first setup. Password is set via `SEED_DEFAU
 ```
 support-ticket-system/
 ├── SUBMISSION.md            # Reviewer checklist — start here
+├── candidate-info.md        # Submission artifacts (see SUBMISSION.md for full list)
 ├── tool-workflow.md         # Required AI workflow submission
 ├── docs/                    # Design spec, architecture, acceptance criteria
-├── prompts/                 # Prompt history (26+ prompts)
+├── ai-prompts/              # Prompt history by lifecycle phase (27 prompts)
 ├── artifacts/               # Form answers, implementation log, tasks
-├── tool-specific/           # Cursor workflow (canonical source)
+├── tool-specific/           # Cursor agent context
 │   └── cursor-workflow/
 │       ├── spec.md
-│       ├── prompt-history.md
-│       ├── implementation-log.md
-│       └── ...
+│       ├── project-context.md
+│       ├── tasks.md
+│       ├── acceptance-criteria.md
+│       └── cursor-rules-or-instructions.md
 ├── frontend/src/
 │   ├── app/login/           # Public login
 │   ├── app/(app)/           # Protected routes (dashboard, tickets, profile)
@@ -195,10 +199,21 @@ cd frontend && npm run typecheck && npm run lint
 | Document | Description |
 |----------|-------------|
 | **[SUBMISSION.md](SUBMISSION.md)** | Reviewer checklist — all deliverables and folder map |
+| **[candidate-info.md](candidate-info.md)** | Candidate and project summary |
 | **[tool-workflow.md](tool-workflow.md)** | **Required submission** — full AI lifecycle narrative |
+| **[acceptance-criteria.md](acceptance-criteria.md)** | Checkbox acceptance summary |
+| **[requirements-analysis.md](requirements-analysis.md)** | Requirements and edge cases |
+| **[implementation-plan.md](implementation-plan.md)** | Phased plan, risks, AI usage |
+| **[design-notes.md](design-notes.md)** | Architecture and design decisions |
+| **[api-contract.md](api-contract.md)** | Key API endpoints |
+| **[test-strategy.md](test-strategy.md)** | Test scope and coverage |
+| **[debugging-notes.md](debugging-notes.md)** | Documented bugs and fixes |
+| **[code-review-notes.md](code-review-notes.md)** | Review feedback and changes |
+| **[reflection.md](reflection.md)** | AI workflow reflection |
+| **[pr-description.md](pr-description.md)** | PR-style delivery summary |
 | [`artifacts/form-answers.md`](artifacts/form-answers.md) | Assignment form answers (Q&A format) |
 | [`docs/`](docs/) | Design spec, architecture, acceptance criteria |
-| [`prompts/`](prompts/) | Prompt history |
+| [`ai-prompts/`](ai-prompts/) | Prompt history by lifecycle phase (index + category files) |
 | [`artifacts/`](artifacts/) | Implementation log, tasks, cursor rules |
 | [`tool-specific/`](tool-specific/) | Cursor-specific workflow folder |
 

@@ -1,1 +1,0 @@
-../tool-specific/cursor-workflow/prompt-history.md

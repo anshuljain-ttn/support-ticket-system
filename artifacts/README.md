@@ -12,5 +12,5 @@
 ## Related
 
 - [`../tool-workflow.md`](../tool-workflow.md) — required submission document
-- [`../prompts/prompt-history.md`](../prompts/prompt-history.md) — full prompt log
+- [`../ai-prompts/`](../ai-prompts/) — prompt history by lifecycle phase + [`prompt-history.md`](../ai-prompts/prompt-history.md) index
 - [`../docs/`](../docs/) — design spec and acceptance criteria

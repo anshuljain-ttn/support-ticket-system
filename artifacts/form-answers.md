@@ -83,7 +83,7 @@ Never shared: `JWT_SECRET`, passwords, API keys, production credentials, real cu
 1. Spec + acceptance criteria first (human-approved)
 2. `architecture.md` + cursor rules in repo
 3. `tasks.md` sprint-sized chunks
-4. `prompt-history.md` + `implementation-log.md` per session
+4. `ai-prompts/` (matching lifecycle file) + `implementation-log.md` per session
 5. CI: test + lint + typecheck on every change
 6. PR review by human; paste incident/feedback into agent for targeted fixes
 
@@ -93,4 +93,4 @@ See [`tool-workflow.md`](../tool-workflow.md) §11 for team adaptations.
 
 ### Where is the full prompt log?
 
-[`prompts/prompt-history.md`](../prompts/prompt-history.md) — 26+ prompts with outcomes.
+[`ai-prompts/`](../ai-prompts/) — 27 prompts across planning, design, implementation, testing, debugging, code-review, and documentation. Index: [`ai-prompts/prompt-history.md`](../ai-prompts/prompt-history.md).

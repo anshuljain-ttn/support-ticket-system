@@ -174,8 +174,8 @@
 2. **Pick the next pending task** from `tasks.md`
 3. **Implement completely** — no partial or stub code
 4. **Verify:** compile, lint, test
-5. **Update `implementation-log.md`** with decisions made
-6. **Update `prompt-history.md`** with prompts used
+5. **Update [`artifacts/implementation-log.md`](../../artifacts/implementation-log.md)** with decisions made
+6. **Update the matching file in [`ai-prompts/`](../../ai-prompts/)** and the index in [`ai-prompts/prompt-history.md`](../../ai-prompts/prompt-history.md) with prompts used
 7. **Mark task complete** in `tasks.md`
 8. **Suggest commit message**
 9. **Move to next task**
@@ -203,4 +203,4 @@
 - Choose **explicit over implicit** (named constants over magic strings).
 - Choose **backend enforcement** over frontend-only checks.
 - Choose **existing patterns** in the codebase over new patterns.
-- Document the decision in `implementation-log.md`.
+- Document the decision in [`artifacts/implementation-log.md`](../../artifacts/implementation-log.md).

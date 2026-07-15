@@ -450,8 +450,8 @@
 - Run lint on both projects
 - Verify Docker end-to-end
 - Remove any TODOs or placeholders
-- Update `implementation-log.md`
-- Update `prompt-history.md`
+- Update [`artifacts/implementation-log.md`](../../artifacts/implementation-log.md)
+- Update the matching [`ai-prompts/<phase>.md`](../../ai-prompts/) file and [`ai-prompts/prompt-history.md`](../../ai-prompts/prompt-history.md) index
 
 **Verify:** All acceptance criteria in `acceptance-criteria.md` met  
 **Commit:** `chore: final verification and cleanup`

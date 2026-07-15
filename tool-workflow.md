@@ -9,9 +9,9 @@
 | Assignment folder | Contents |
 |-------------------|----------|
 | [`docs/`](docs/) | Design spec, architecture, acceptance criteria |
-| [`prompts/`](prompts/) | Prompt history (26+ prompts) |
+| [`ai-prompts/`](ai-prompts/) | Prompt history by lifecycle phase (27 prompts) + [`prompt-history.md`](ai-prompts/prompt-history.md) index |
 | [`artifacts/`](artifacts/) | Form answers, implementation log, tasks, cursor rules |
-| [`tool-specific/cursor-workflow/`](tool-specific/cursor-workflow/) | Canonical source files (symlinked into folders above) |
+| [`tool-specific/cursor-workflow/`](tool-specific/cursor-workflow/) | Cursor agent context: spec, tasks, acceptance criteria, project context, cursor rules |
 
 ---
 
@@ -25,7 +25,7 @@
 | **Codebase context** | Agent reads open files, `@` references, and the full repo when exploring |
 | **Cursor Rules** | Persistent instructions in `tool-specific/cursor-workflow/cursor-rules-or-instructions.md` |
 | **Terminal access** | Agent runs `npm test`, lint, typecheck, and Docker builds to verify changes |
-| **Chat history** | Each session prompt recorded in [`prompt-history.md`](tool-specific/cursor-workflow/prompt-history.md) |
+| **Chat history** | Each session prompt recorded in [`ai-prompts/`](ai-prompts/) (indexed in [`prompt-history.md`](ai-prompts/prompt-history.md)) |
 
 No other AI tools were used for implementation. The human author drove requirements, reviewed diffs, and approved architectural pivots (e.g. v1 → v2 auth refactor).
 
@@ -82,7 +82,7 @@ AI was used to **structure and challenge** requirements, not to invent product g
 
 - [`spec.md`](tool-specific/cursor-workflow/spec.md) — single source of truth for *what* to build
 - [`acceptance-criteria.md`](tool-specific/cursor-workflow/acceptance-criteria.md) — AC-1 through AC-23 with verification method per criterion
-- [`implementation-log.md`](tool-specific/cursor-workflow/implementation-log.md) — decisions when requirements were ambiguous (e.g. D4: MongoDB text indexes vs Elasticsearch)
+- [`artifacts/implementation-log.md`](artifacts/implementation-log.md) — decisions when requirements were ambiguous (e.g. D4: MongoDB text indexes vs Elasticsearch)
 
 ---
 
@@ -96,7 +96,7 @@ Planning was **phased and task-driven**, not one-shot code dumps.
 |----------|------|
 | [`tasks.md`](tool-specific/cursor-workflow/tasks.md) | 27+ tasks across Phases A–K (scaffold → backend → frontend → Docker → v2 auth) |
 | [`project-context.md`](tool-specific/cursor-workflow/project-context.md) | Architecture: monorepo, layer separation, error envelope, permission model |
-| [`implementation-log.md`](tool-specific/cursor-workflow/implementation-log.md) | Design decisions with rationale and rejected alternatives |
+| [`artifacts/implementation-log.md`](artifacts/implementation-log.md) | Design decisions with rationale and rejected alternatives |
 
 ### Typical planning prompt
 
@@ -218,7 +218,7 @@ AI generated tests **alongside** feature code, not as an afterthought.
 
 When something broke, AI was used to **diagnose from symptoms**, fix, and **document** the resolution.
 
-### Documented bugs ([`implementation-log.md` § Bug Fixes](tool-specific/cursor-workflow/implementation-log.md))
+### Documented bugs ([`implementation-log.md` § Bug Fixes](artifacts/implementation-log.md))
 
 | Bug | Symptom | How AI debugged | Fix |
 |-----|---------|-----------------|-----|
@@ -316,7 +316,7 @@ This workflow maps directly to a production team using AI-assisted development.
 1. Spec first        → spec.md + acceptance-criteria.md (human-approved)
 2. Context files     → project-context.md + cursor-rules (team conventions)
 3. Phased tasks      → tasks.md (sprint-sized chunks)
-4. Prompt log        → prompt-history.md (audit trail)
+4. Prompt log        → `ai-prompts/` by phase (audit trail; index in `ai-prompts/prompt-history.md`)
 5. Decision log      → implementation-log.md (ADRs, bugs, trade-offs)
 6. Implement         → one task per agent session
 7. Validate          → CI: test + lint + typecheck on every change
@@ -330,7 +330,7 @@ This workflow maps directly to a production team using AI-assisted development.
 |--------------|--------------|
 | Single developer + Cursor Agent | Shared cursor-rules in repo; PR templates reference `tasks.md` |
 | MongoMemoryServer in tests | Staging environment + contract tests against real services |
-| Prompt history in markdown | Same format, plus linked to tickets (Jira/Linear IDs) |
+| Prompt history visibility | Same format, plus linked to tickets (Jira/Linear IDs); categorized under `ai-prompts/` |
 | Manual rubric review | PR checks, Sentry, Datadog — paste incident context into agent for debugging |
 | `tool-workflow.md` once | Onboarding doc for new engineers using Cursor on the codebase |
 
@@ -346,9 +346,9 @@ This workflow maps directly to a production team using AI-assisted development.
 ### Artifacts to copy to any new project
 
 - `tool-workflow.md` (this file) — submission / onboarding template
-- `tool-specific/cursor-workflow/` folder structure
+- `tool-specific/cursor-workflow/` — agent context files (spec, tasks, cursor rules)
 - Cursor rules file aligned to team standards
-- `prompt-history.md` + `implementation-log.md` habit — one entry per session
+- `ai-prompts/` + `implementation-log.md` habit — one entry per session in the matching lifecycle file
 
 ---
 
@@ -356,16 +356,17 @@ This workflow maps directly to a production team using AI-assisted development.
 
 | File | Purpose |
 |------|---------|
-| [`tool-specific/cursor-workflow/prompt-history.md`](tool-specific/cursor-workflow/prompt-history.md) | Full prompt log (25+ prompts) |
-| [`tool-specific/cursor-workflow/implementation-log.md`](tool-specific/cursor-workflow/implementation-log.md) | Decisions, bugs, debugging guide |
+| [`ai-prompts/`](ai-prompts/) | Categorized prompt log (27 prompts) |
+| [`ai-prompts/prompt-history.md`](ai-prompts/prompt-history.md) | Prompt index with cross-links |
+| [`artifacts/implementation-log.md`](artifacts/implementation-log.md) | Decisions, bugs, debugging guide |
 | [`README.md`](README.md) | Project setup and links to all documentation |
 
 ### How to verify claims in this document
 
 ```bash
 cat SUBMISSION.md tool-workflow.md
-ls docs/ prompts/ artifacts/ tool-specific/
-less prompts/prompt-history.md
+ls docs/ ai-prompts/ artifacts/ tool-specific/
+less ai-prompts/planning.md ai-prompts/implementation.md ai-prompts/prompt-history.md
 less artifacts/implementation-log.md
 cd backend && npm test   # 174 tests
 ```

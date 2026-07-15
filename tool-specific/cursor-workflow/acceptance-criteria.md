@@ -8,7 +8,7 @@
 
 | ID | Criterion | Verification |
 |----|-----------|--------------|
-| AC-1.1 | Repository contains `frontend/`, `backend/`, `tool-workflow.md`, `docs/`, `prompts/`, `artifacts/`, `tool-specific/` | Directory listing |
+| AC-1.1 | Repository contains `frontend/`, `backend/`, `tool-workflow.md`, `docs/`, `ai-prompts/`, `artifacts/`, `tool-specific/` | Directory listing |
 | AC-1.2 | Both apps compile without TypeScript errors | `tsc --noEmit` in each |
 | AC-1.3 | ESLint passes with zero errors | `npm run lint` in each |
 | AC-1.4 | No `TODO`, `FIXME`, or placeholder implementations in production code | Code search |

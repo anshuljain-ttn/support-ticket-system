@@ -11,5 +11,5 @@
 ## Related
 
 - [`../tool-workflow.md`](../tool-workflow.md) — how AI was used to produce these docs
-- [`../tool-specific/cursor-workflow/`](../tool-specific/cursor-workflow/) — canonical workflow folder (Cursor)
+- [`../tool-specific/cursor-workflow/`](../tool-specific/cursor-workflow/) — Cursor agent context (spec, tasks, cursor rules)
 - [`../backend/src/docs/`](../backend/src/docs/) — OpenAPI path definitions (runtime API docs at `/api-docs`)
