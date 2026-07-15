@@ -201,7 +201,7 @@
 ---
 
 ### Task B11: Swagger / OpenAPI
-**Status:** Pending  
+**Status:** Complete  
 **Scope:**
 - Install `swagger-jsdoc` + `swagger-ui-express`
 - OpenAPI spec for all endpoints

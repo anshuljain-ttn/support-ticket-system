@@ -166,6 +166,12 @@
 - Added 4 REST integration tests covering AC-6.1–AC-6.4 and empty-message validation.
 - Traces to **FR-C01–FR-C04**, **AC-6.1–AC-6.4**, **AC-8.10**.
 
+### Task B11 — Swagger / OpenAPI (2026-07-15)
+- Added `config/swagger.ts` with swagger-jsdoc and shared component schemas.
+- Added `docs/openapi.paths.ts` with JSDoc path definitions for all 9 operations.
+- Mounted Swagger UI at `/api-docs` and raw spec at `/api-docs.json`.
+- Added 4 unit tests covering AC-9.1–AC-9.3.
+
 ---
 
 ### Architecture Changes
