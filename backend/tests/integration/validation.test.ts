@@ -16,7 +16,6 @@ import {
   type SeededUsers,
   type TestDatabase,
 } from '../helpers/test-db.js';
-import { TicketPriorities } from '@/types/ticket.types.js';
 
 describe('API validation integration', () => {
   let testDb: TestDatabase;

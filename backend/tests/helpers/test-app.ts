@@ -1,5 +1,6 @@
 import request from 'supertest';
 import type { Application } from 'express';
+import { expect } from 'vitest';
 
 import { createApp } from '@/app.js';
 import { ErrorCodes } from '@/constants/error-codes.js';

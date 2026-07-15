@@ -262,6 +262,26 @@
 - `docker build` not verified locally (Docker CLI unavailable in environment).
 - Traces to **AC-17.4**, **D14**.
 
+### Task D1 — Docker Compose (2026-07-15)
+- Finalized `docker-compose.yml` with MongoDB, backend, and frontend (no profiles).
+- Added service health checks and `depends_on` with `service_healthy` conditions.
+- Added `docker-seed.ts` + `docker-entrypoint.sh` for idempotent user seed on backend startup.
+- Named volume `mongodb_data` for MongoDB persistence.
+- Traces to **AC-17.1**, **AC-17.2**, **AC-17.3**, **D17**.
+
+### Task D2 — Root README (2026-07-15)
+- Rewrote `README.md` with architecture overview, folder structure, features, env vars, local dev, Docker guide, testing, API table, and future improvements.
+- Removed "scaffolding in progress" notice; updated stack versions (Next.js 16).
+- Traces to **AC-18.1–18.6**.
+
+### Task D3 — Final Verification & Cleanup (2026-07-15)
+- Backend: 96/96 tests pass, typecheck and lint pass.
+- Frontend: typecheck and lint pass.
+- Fixed backend lint: added vitest `expect` import in `test-app.ts`, removed unused import in `validation.test.ts`.
+- No `TODO`/`FIXME` in production source code.
+- Docker end-to-end not verified (Docker CLI unavailable in environment).
+- Traces to **AC-1.4**, acceptance criteria verification.
+
 ---
 
 ### Architecture Changes

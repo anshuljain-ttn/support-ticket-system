@@ -411,7 +411,7 @@
 ## Phase D — Integration & DevOps
 
 ### Task D1: Docker Compose
-**Status:** Pending  
+**Status:** Complete  
 **Scope:**
 - `docker-compose.yml` with mongodb, backend, frontend
 - Named volumes for MongoDB data
@@ -425,7 +425,7 @@
 ---
 
 ### Task D2: Root README
-**Status:** Pending  
+**Status:** Complete  
 **Scope:**
 - Architecture overview
 - Folder structure
@@ -444,7 +444,7 @@
 ---
 
 ### Task D3: Final Verification & Cleanup
-**Status:** Pending  
+**Status:** Complete  
 **Scope:**
 - Run all backend tests
 - Run lint on both projects
