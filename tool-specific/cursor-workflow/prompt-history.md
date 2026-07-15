@@ -264,7 +264,20 @@ Continue
 
 ---
 
-### Prompt 19: (Pending — Next Session)
+### Prompt 19: Complete C8–C12
+
+**Type:** Follow-up  
+**Date:** 2026-07-15
+
+```
+Complete task from C8 till C12 and give me a combined commit
+```
+
+**Outcome:** Tasks C8–C12 completed — create/edit/detail ticket pages with forms, comments, status/assignment controls, activity timeline, app error/loading/404 pages, and frontend Dockerfile with standalone Next.js output.
+
+---
+
+### Prompt 20: (Pending — Next Session)
 
 **Type:** Follow-up  
 **Date:** TBD

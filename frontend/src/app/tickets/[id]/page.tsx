@@ -1,4 +1,4 @@
-import { PageContainer } from '@/components/layout/page-container';
+import { TicketDetailView } from '@/components/tickets/ticket-detail-view';
 
 type TicketDetailPageProps = {
   params: Promise<{ id: string }>;
@@ -7,12 +7,5 @@ type TicketDetailPageProps = {
 export default async function TicketDetailPage({ params }: TicketDetailPageProps) {
   const { id } = await params;
 
-  return (
-    <PageContainer
-      title="Ticket Detail"
-      description={`Viewing ticket ${id}.`}
-    >
-      <p className="text-muted-foreground">Ticket detail — implementation in progress.</p>
-    </PageContainer>
-  );
+  return <TicketDetailView ticketId={id} />;
 }

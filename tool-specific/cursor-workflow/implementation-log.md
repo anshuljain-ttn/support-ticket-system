@@ -232,6 +232,36 @@
 - Verified: `npm run typecheck` and `npm run lint` pass. `npm run build` blocked by Google Fonts fetch in sandbox (pre-existing layout dependency).
 - Traces to **US-2**, **US-3**, **AC-12.2**, **AC-12.3**, **D7**.
 
+### Task C8 — Create Ticket Page (2026-07-15)
+- Added `schemas/ticket.schema.ts` with Zod validation aligned to backend rules.
+- Added `ticket-form.tsx` (create mode) and `create-ticket-view.tsx` with React Hook Form + user selector.
+- Wired `app/tickets/new/page.tsx` with success toast and redirect to ticket detail.
+- Traces to **US-1**, **FR-F04**, **AC-12.4**.
+
+### Task C9 — Ticket Detail Page (2026-07-15)
+- Added `ticket-detail-view.tsx` with ticket info, badges, and metadata.
+- Added `comment-form.tsx`, `comment-timeline.tsx`, `status-select.tsx`, `assignment-select.tsx`, and `activity-timeline.tsx`.
+- Added `lib/activity-timeline.ts` to derive activity from ticket metadata and comments (no audit collection).
+- Wired `app/tickets/[id]/page.tsx` with 404/invalid-id error handling.
+- Traces to **US-4**, **US-5**, **FR-F03**, **FR-UI02**, **FR-UI03**, **AC-12.5**.
+
+### Task C10 — Edit Ticket Page (2026-07-15)
+- Reused `ticket-form.tsx` in edit mode via `edit-ticket-view.tsx`.
+- Pre-populates from `useTicket`; updates via PUT; redirects to detail on success.
+- Traces to **US-6**, **FR-F05**, **AC-12.6**.
+
+### Task C11 — Error & Loading Pages (2026-07-15)
+- Added root `loading.tsx`, `error.tsx`, and `not-found.tsx`.
+- Added `app/tickets/loading.tsx` for list route skeleton.
+- Ticket detail/edit views include API-level 404 and retry error states.
+- Traces to **FR-F07**, **FR-F08**, **AC-13.9**, **AC-13.10**.
+
+### Task C12 — Frontend Dockerfile (2026-07-15)
+- Added multi-stage `frontend/Dockerfile` with Next.js `standalone` output.
+- Added `frontend/.dockerignore` and `output: 'standalone'` in `next.config.ts`.
+- `docker build` not verified locally (Docker CLI unavailable in environment).
+- Traces to **AC-17.4**, **D14**.
+
 ---
 
 ### Architecture Changes

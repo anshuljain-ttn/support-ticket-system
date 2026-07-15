@@ -340,7 +340,7 @@
 ---
 
 ### Task C8: Create Ticket Page
-**Status:** Pending  
+**Status:** Complete  
 **Scope:**
 - `app/tickets/new/page.tsx`
 - `components/tickets/ticket-form.tsx`
@@ -355,7 +355,7 @@
 ---
 
 ### Task C9: Ticket Detail Page
-**Status:** Pending  
+**Status:** Complete  
 **Scope:**
 - `app/tickets/[id]/page.tsx`
 - Ticket info display
@@ -372,7 +372,7 @@
 ---
 
 ### Task C10: Edit Ticket Page
-**Status:** Pending  
+**Status:** Complete  
 **Scope:**
 - `app/tickets/[id]/edit/page.tsx`
 - Reuse `ticket-form.tsx` in edit mode
@@ -385,7 +385,7 @@
 ---
 
 ### Task C11: Error & Loading Pages
-**Status:** Pending  
+**Status:** Complete  
 **Scope:**
 - `app/loading.tsx`, `app/error.tsx`, `app/not-found.tsx`
 - Ticket-level error states
@@ -397,7 +397,7 @@
 ---
 
 ### Task C12: Frontend Dockerfile
-**Status:** Pending  
+**Status:** Complete  
 **Scope:**
 - Multi-stage Next.js Dockerfile
 - `.dockerignore`

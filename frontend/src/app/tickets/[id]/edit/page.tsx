@@ -1,4 +1,4 @@
-import { PageContainer } from '@/components/layout/page-container';
+import { EditTicketView } from '@/components/tickets/edit-ticket-view';
 
 type EditTicketPageProps = {
   params: Promise<{ id: string }>;
@@ -7,12 +7,5 @@ type EditTicketPageProps = {
 export default async function EditTicketPage({ params }: EditTicketPageProps) {
   const { id } = await params;
 
-  return (
-    <PageContainer
-      title="Edit Ticket"
-      description={`Update ticket ${id}.`}
-    >
-      <p className="text-muted-foreground">Edit ticket form — implementation in progress.</p>
-    </PageContainer>
-  );
+  return <EditTicketView ticketId={id} />;
 }
