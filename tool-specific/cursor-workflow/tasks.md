@@ -256,7 +256,7 @@
 ---
 
 ### Task C2: API Service Layer
-**Status:** Pending  
+**Status:** Complete  
 **Scope:**
 - `services/ticket.service.ts` — All ticket API calls
 - `services/user.service.ts` — `getUsers()`

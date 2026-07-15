@@ -192,6 +192,12 @@
 - Added `types/api.types.ts`, `types/ticket.types.ts`, and `types/user.types.ts` mirroring backend contracts.
 - Wired `QueryProvider` to shared `createQueryClient()` from `lib/query-client.ts`.
 
+### Task C2 — API Service Layer (2026-07-15)
+- Added `ticket.service.ts` for list, search, detail, create, update, and status patch API calls.
+- Added `user.service.ts` (`getUsers`) and `comment.service.ts` (`addComment`).
+- Added `lib/status-transitions.ts` mirroring backend workflow rules for UI use.
+- Query param serializer supports repeated array keys for status/priority filters.
+
 ---
 
 ### Architecture Changes

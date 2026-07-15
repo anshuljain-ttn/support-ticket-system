@@ -69,10 +69,6 @@ Now start implementing the project according to tasks.md.
 
 ---
 
-**Outcome:** Task A1 completed — monorepo structure initialized.
-
----
-
 ### Prompt 4: Start Task B1
 
 **Type:** Follow-up  
@@ -86,12 +82,129 @@ Start With Task B1
 
 ---
 
-### Prompt 5: (Pending — Next Session)
+### Prompt 5: Separate GitHub SSH Identity
+
+**Type:** Refinement  
+**Date:** 2026-07-15
+
+```
+Don't want to use lumi-anshul-jain ssh key, need a separate one for anshuljain-ttn
+```
+
+**Outcome:** Created dedicated SSH key pair in `.ssh/id_ed25519_anshuljain_ttn`, configured repo `core.sshCommand` to use it exclusively, documented steps to add key to `anshuljain-ttn` GitHub account and create `support-ticket-system` repo. Push blocked until user completes GitHub setup.
+
+---
+
+### Prompt 6: Start Task B9
+
+**Type:** Follow-up  
+**Date:** 2026-07-15
+
+```
+Start working on B9 Task
+```
+
+**Outcome:** Task B9 completed — `ticket.controller.ts`, `ticket.routes.ts` (6 REST operations), mounted in routes index, 7 integration tests in `tickets.test.ts`.
+
+---
+
+### Prompt 7: Continue Backend (B10)
+
+**Type:** Follow-up  
+**Date:** 2026-07-15
+
+```
+Continue
+```
+
+**Outcome:** Task B10 completed — comment validator, service, controller, `POST /tickets/:id/comments` route, 4 integration tests in `comments.test.ts`.
+
+---
+
+### Prompt 8: Continue Backend (B11)
+
+**Type:** Follow-up  
+**Date:** 2026-07-15
+
+```
+Continue
+```
+
+**Outcome:** Task B11 completed — Swagger/OpenAPI via `swagger-jsdoc`, `config/swagger.ts`, `docs/openapi.paths.ts`, UI at `/api-docs`, spec at `/api-docs.json`, 4 unit tests.
+
+---
+
+### Prompt 9: Continue Backend (B12)
+
+**Type:** Follow-up  
+**Date:** 2026-07-15
+
+```
+Continue
+```
+
+**Outcome:** Task B12 completed — shared test helpers (`test-db.ts`, `test-app.ts`), `status-machine.test.ts` (AC-5), `validation.test.ts` (AC-8), refactored integration tests; 96 tests passing.
+
+---
+
+### Prompt 10: Continue Backend (B13)
+
+**Type:** Follow-up  
+**Date:** 2026-07-15
+
+```
+Continue
+```
+
+**Outcome:** Task B13 completed — multi-stage `backend/Dockerfile`, `.dockerignore`, HEALTHCHECK on `/health`. Fixed production build with `tsc-alias` and swagger OpenAPI path resolution for compiled output. **Phase B complete.**
+
+---
+
+### Prompt 11: Start Phase C
+
+**Type:** Follow-up  
+**Date:** 2026-07-15
+
+```
+Start with Phase C
+```
+
+**Outcome:** Task C1 completed — `api-client.ts`, `api.types.ts`, `ticket.types.ts`, `user.types.ts`; `QueryProvider` wired to `createQueryClient()`.
+
+---
+
+### Prompt 12: Continue Frontend (C2)
+
+**Type:** Follow-up  
+**Date:** 2026-07-15
+
+```
+Continue
+```
+
+**Outcome:** Task C2 completed — `ticket.service.ts`, `user.service.ts`, `comment.service.ts`, `lib/status-transitions.ts` mirroring backend workflow.
+
+---
+
+### Prompt 13: Prompt History Not Updating
+
+**Type:** Refinement  
+**Date:** 2026-07-15
+
+```
+Seems like @tool-specific/cursor-workflow/prompt-history.md is not updating
+```
+
+**Outcome:** Retroactively updated `prompt-history.md` with prompts 5–13 and outcomes for B9–B13 and C1–C2.
+
+---
+
+### Prompt 14: (Pending — Next Session)
 
 **Type:** Follow-up  
 **Date:** TBD
 
-*To be filled when implementation begins.*
+*To be filled on next implementation prompt.*
 
 ---
 
