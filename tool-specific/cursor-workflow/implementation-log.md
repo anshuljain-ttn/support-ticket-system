@@ -172,6 +172,14 @@
 - Mounted Swagger UI at `/api-docs` and raw spec at `/api-docs.json`.
 - Added 4 unit tests covering AC-9.1–AC-9.3.
 
+### Task B12 — Backend Integration Tests (2026-07-15)
+- Added `tests/helpers/test-db.ts` (memory DB lifecycle, seed, cleanup) and `tests/helpers/test-app.ts` (app factory, API helpers).
+- Updated `tests/setup.ts` to set `NODE_ENV=test`.
+- Added `status-machine.test.ts` covering AC-5.1–AC-5.12 via REST API.
+- Added `validation.test.ts` covering AC-8.1–AC-8.11.
+- Refactored `tickets.test.ts`, `comments.test.ts`, and `users.test.ts` to use shared helpers.
+- 96 tests passing with isolated MongoMemoryServer per integration suite.
+
 ---
 
 ### Architecture Changes

@@ -1,35 +1,31 @@
-import mongoose from 'mongoose';
-import { MongoMemoryServer } from 'mongodb-memory-server';
 import request from 'supertest';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 
-import { createApp } from '@/app.js';
 import { ErrorCodes } from '@/constants/error-codes.js';
-import { userRepository } from '@/repositories/user.repository.js';
 import { userService } from '@/services/user.service.js';
-
-let mongoServer: MongoMemoryServer;
+import { createTestApp } from '../helpers/test-app.js';
+import { clearTestDatabase, startTestDatabase, type TestDatabase } from '../helpers/test-db.js';
 
 describe('users integration', () => {
+  let testDb: TestDatabase;
+
   beforeAll(async () => {
-    mongoServer = await MongoMemoryServer.create();
-    await mongoose.connect(mongoServer.getUri());
+    testDb = await startTestDatabase();
   });
 
   afterEach(async () => {
-    await userRepository.deleteAll();
+    await clearTestDatabase();
   });
 
   afterAll(async () => {
-    await mongoose.disconnect();
-    await mongoServer.stop();
+    await testDb.stop();
   });
 
   it('seeds five users and lists them via GET /users', async () => {
     const seededUsers = await userService.seedUsers();
     expect(seededUsers).toHaveLength(5);
 
-    const app = createApp();
+    const app = createTestApp();
     const response = await request(app).get('/users');
 
     expect(response.status).toBe(200);

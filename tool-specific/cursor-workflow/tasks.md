@@ -213,7 +213,7 @@
 ---
 
 ### Task B12: Backend Integration Tests
-**Status:** Pending  
+**Status:** Complete  
 **Scope:**
 - `tests/setup.ts` — Test DB connection
 - `tests/helpers/test-app.ts` — App factory

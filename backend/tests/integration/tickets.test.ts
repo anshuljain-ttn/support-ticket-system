@@ -1,54 +1,50 @@
-import mongoose from 'mongoose';
-import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Types } from 'mongoose';
 import request from 'supertest';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
-import { createApp } from '@/app.js';
 import { ErrorCodes } from '@/constants/error-codes.js';
-import { Comment } from '@/models/comment.model.js';
-import { Ticket } from '@/models/ticket.model.js';
 import { commentRepository } from '@/repositories/comment.repository.js';
-import { ticketRepository } from '@/repositories/ticket.repository.js';
-import { userRepository } from '@/repositories/user.repository.js';
-import { userService } from '@/services/user.service.js';
-
+import {
+  createTestApp,
+  createTicketViaApi,
+  patchTicketStatus,
+} from '../helpers/test-app.js';
+import {
+  clearTestDatabase,
+  seedTestUsers,
+  startTestDatabase,
+  type SeededUsers,
+  type TestDatabase,
+} from '../helpers/test-db.js';
 import { TicketPriorities, TicketStatuses } from '@/types/ticket.types.js';
 
-let mongoServer: MongoMemoryServer;
-let employeeId: string;
-
 describe('tickets REST API', () => {
+  let testDb: TestDatabase;
+  let users: SeededUsers;
+
   beforeAll(async () => {
-    mongoServer = await MongoMemoryServer.create();
-    await mongoose.connect(mongoServer.getUri());
-    await Promise.all([Ticket.syncIndexes(), Comment.syncIndexes()]);
+    testDb = await startTestDatabase();
   });
 
   beforeEach(async () => {
-    await userService.seedUsers();
-    const users = await userRepository.findAll();
-    employeeId = users[0]?._id.toString() ?? '';
+    users = await seedTestUsers();
   });
 
   afterEach(async () => {
-    await commentRepository.deleteAll();
-    await ticketRepository.deleteAll();
-    await userRepository.deleteAll();
+    await clearTestDatabase();
   });
 
   afterAll(async () => {
-    await mongoose.disconnect();
-    await mongoServer.stop();
+    await testDb.stop();
   });
 
   it('POST /tickets creates a ticket with Open status', async () => {
-    const app = createApp();
+    const app = createTestApp();
     const response = await request(app).post('/tickets').send({
       title: 'VPN issue',
       description: 'Unable to connect to corporate VPN from home.',
       priority: TicketPriorities.HIGH,
-      createdBy: employeeId,
+      createdBy: users.employeeId,
     });
 
     expect(response.status).toBe(201);
@@ -57,7 +53,7 @@ describe('tickets REST API', () => {
       data: {
         title: 'VPN issue',
         status: TicketStatuses.OPEN,
-        createdBy: employeeId,
+        createdBy: users.employeeId,
         createdAt: expect.any(String) as string,
         updatedAt: expect.any(String) as string,
       },
@@ -65,20 +61,17 @@ describe('tickets REST API', () => {
   });
 
   it('GET /tickets/:id returns ticket with comments and allowed transitions', async () => {
-    const app = createApp();
-    const created = await request(app).post('/tickets').send({
+    const app = createTestApp();
+    const ticketId = await createTicketViaApi(app, users.employeeId, {
       title: 'Printer issue',
       description: 'Office printer is not responding to jobs.',
       priority: TicketPriorities.MEDIUM,
-      createdBy: employeeId,
     });
-
-    const ticketId = (created.body as { data: { _id: string } }).data._id;
 
     await commentRepository.create({
       ticketId,
       message: 'Checked the printer queue.',
-      createdBy: employeeId,
+      createdBy: users.employeeId,
     });
 
     const response = await request(app).get(`/tickets/${ticketId}`);
@@ -94,7 +87,7 @@ describe('tickets REST API', () => {
         comments: [
           {
             message: 'Checked the printer queue.',
-            createdBy: employeeId,
+            createdBy: users.employeeId,
           },
         ],
         allowedTransitions: [TicketStatuses.IN_PROGRESS, TicketStatuses.CANCELLED],
@@ -103,15 +96,12 @@ describe('tickets REST API', () => {
   });
 
   it('PUT /tickets/:id updates ticket fields', async () => {
-    const app = createApp();
-    const created = await request(app).post('/tickets').send({
+    const app = createTestApp();
+    const ticketId = await createTicketViaApi(app, users.employeeId, {
       title: 'Email outage',
       description: 'Users cannot send external emails today.',
       priority: TicketPriorities.CRITICAL,
-      createdBy: employeeId,
     });
-
-    const ticketId = (created.body as { data: { _id: string } }).data._id;
 
     const response = await request(app).put(`/tickets/${ticketId}`).send({
       title: 'Email outage resolved',
@@ -130,19 +120,14 @@ describe('tickets REST API', () => {
   });
 
   it('PATCH /tickets/:id/status updates status only', async () => {
-    const app = createApp();
-    const created = await request(app).post('/tickets').send({
+    const app = createTestApp();
+    const ticketId = await createTicketViaApi(app, users.employeeId, {
       title: 'Badge access',
       description: 'Employee badge stopped working at the entrance.',
       priority: TicketPriorities.LOW,
-      createdBy: employeeId,
     });
 
-    const ticketId = (created.body as { data: { _id: string } }).data._id;
-
-    const response = await request(app)
-      .patch(`/tickets/${ticketId}/status`)
-      .send({ status: TicketStatuses.IN_PROGRESS });
+    const response = await patchTicketStatus(app, ticketId, TicketStatuses.IN_PROGRESS);
 
     expect(response.status).toBe(200);
     expect(response.body).toMatchObject({
@@ -155,12 +140,11 @@ describe('tickets REST API', () => {
   });
 
   it('GET /tickets returns paginated list', async () => {
-    const app = createApp();
-    await request(app).post('/tickets').send({
+    const app = createTestApp();
+    await createTicketViaApi(app, users.employeeId, {
       title: 'First ticket',
       description: 'First ticket for pagination testing.',
       priority: TicketPriorities.LOW,
-      createdBy: employeeId,
     });
 
     const response = await request(app).get('/tickets?page=1&limit=10');
@@ -181,15 +165,12 @@ describe('tickets REST API', () => {
   });
 
   it('GET /tickets/search finds tickets by keyword', async () => {
-    const app = createApp();
-    const created = await request(app).post('/tickets').send({
+    const app = createTestApp();
+    const ticketId = await createTicketViaApi(app, users.employeeId, {
       title: 'Unique printer keyword',
       description: 'Printer jam on floor 2 near reception area.',
       priority: TicketPriorities.HIGH,
-      createdBy: employeeId,
     });
-
-    const ticketId = (created.body as { data: { _id: string } }).data._id;
 
     const response = await request(app).get('/tickets/search').query({
       q: 'unique printer keyword',
@@ -203,7 +184,7 @@ describe('tickets REST API', () => {
   });
 
   it('GET /tickets/:id returns 404 for non-existent ticket', async () => {
-    const app = createApp();
+    const app = createTestApp();
     const missingId = new Types.ObjectId().toString();
 
     const response = await request(app).get(`/tickets/${missingId}`);

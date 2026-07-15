@@ -1,65 +1,49 @@
-import mongoose from 'mongoose';
-import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Types } from 'mongoose';
 import request from 'supertest';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
-import { createApp } from '@/app.js';
 import { ErrorCodes } from '@/constants/error-codes.js';
-import { Comment } from '@/models/comment.model.js';
-import { Ticket } from '@/models/ticket.model.js';
-import { commentRepository } from '@/repositories/comment.repository.js';
-import { ticketRepository } from '@/repositories/ticket.repository.js';
-import { userRepository } from '@/repositories/user.repository.js';
-import { userService } from '@/services/user.service.js';
-
+import { createTestApp, createTicketViaApi } from '../helpers/test-app.js';
+import {
+  clearTestDatabase,
+  seedTestUsers,
+  startTestDatabase,
+  type SeededUsers,
+  type TestDatabase,
+} from '../helpers/test-db.js';
 import { TicketPriorities } from '@/types/ticket.types.js';
 
-let mongoServer: MongoMemoryServer;
-let employeeId: string;
-
 describe('comments REST API', () => {
+  let testDb: TestDatabase;
+  let users: SeededUsers;
+
   beforeAll(async () => {
-    mongoServer = await MongoMemoryServer.create();
-    await mongoose.connect(mongoServer.getUri());
-    await Promise.all([Ticket.syncIndexes(), Comment.syncIndexes()]);
+    testDb = await startTestDatabase();
   });
 
   beforeEach(async () => {
-    await userService.seedUsers();
-    const users = await userRepository.findAll();
-    employeeId = users[0]?._id.toString() ?? '';
+    users = await seedTestUsers();
   });
 
   afterEach(async () => {
-    await commentRepository.deleteAll();
-    await ticketRepository.deleteAll();
-    await userRepository.deleteAll();
+    await clearTestDatabase();
   });
 
   afterAll(async () => {
-    await mongoose.disconnect();
-    await mongoServer.stop();
+    await testDb.stop();
   });
 
-  async function createTicket(app: ReturnType<typeof createApp>) {
-    const response = await request(app).post('/tickets').send({
+  it('POST /tickets/:id/comments creates a comment', async () => {
+    const app = createTestApp();
+    const ticketId = await createTicketViaApi(app, users.employeeId, {
       title: 'Printer issue',
       description: 'Office printer is not responding to jobs.',
       priority: TicketPriorities.MEDIUM,
-      createdBy: employeeId,
     });
-
-    return (response.body as { data: { _id: string } }).data._id;
-  }
-
-  it('POST /tickets/:id/comments creates a comment', async () => {
-    const app = createApp();
-    const ticketId = await createTicket(app);
 
     const response = await request(app).post(`/tickets/${ticketId}/comments`).send({
       message: 'Checked the printer queue.',
-      createdBy: employeeId,
+      createdBy: users.employeeId,
     });
 
     expect(response.status).toBe(201);
@@ -68,24 +52,24 @@ describe('comments REST API', () => {
       data: {
         ticketId,
         message: 'Checked the printer queue.',
-        createdBy: employeeId,
+        createdBy: users.employeeId,
         createdAt: expect.any(String) as string,
       },
     });
   });
 
   it('comments appear in ticket detail sorted by createdAt asc', async () => {
-    const app = createApp();
-    const ticketId = await createTicket(app);
+    const app = createTestApp();
+    const ticketId = await createTicketViaApi(app, users.employeeId);
 
     await request(app).post(`/tickets/${ticketId}/comments`).send({
       message: 'First comment',
-      createdBy: employeeId,
+      createdBy: users.employeeId,
     });
 
     await request(app).post(`/tickets/${ticketId}/comments`).send({
       message: 'Second comment',
-      createdBy: employeeId,
+      createdBy: users.employeeId,
     });
 
     const response = await request(app).get(`/tickets/${ticketId}`);
@@ -99,12 +83,12 @@ describe('comments REST API', () => {
   });
 
   it('POST /tickets/:id/comments returns 404 for non-existent ticket', async () => {
-    const app = createApp();
+    const app = createTestApp();
     const missingId = new Types.ObjectId().toString();
 
     const response = await request(app).post(`/tickets/${missingId}/comments`).send({
       message: 'This should fail.',
-      createdBy: employeeId,
+      createdBy: users.employeeId,
     });
 
     expect(response.status).toBe(404);
@@ -117,12 +101,12 @@ describe('comments REST API', () => {
   });
 
   it('POST /tickets/:id/comments returns 400 for empty message', async () => {
-    const app = createApp();
-    const ticketId = await createTicket(app);
+    const app = createTestApp();
+    const ticketId = await createTicketViaApi(app, users.employeeId);
 
     const response = await request(app).post(`/tickets/${ticketId}/comments`).send({
       message: '   ',
-      createdBy: employeeId,
+      createdBy: users.employeeId,
     });
 
     expect(response.status).toBe(400);
