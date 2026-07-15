@@ -210,6 +210,13 @@
 - Updated root `layout.tsx` and all placeholder pages to use shared shell and page container.
 - Added `sonner` dependency for toast notifications.
 
+### Task C5 — Shared UI Components (2026-07-15)
+- Added common components: `empty-state`, `error-state`, `loading-skeleton`, `pagination`.
+- Added ticket components: `status-badge`, `priority-badge` with per-status/priority color coding.
+- Added base `components/ui/badge.tsx`.
+- Toast via Sonner already wired in C4; showcase page at `/dev/ui` verifies all components.
+- Traces to **FR-UI01**, **AC-13.1**, **AC-13.8**, **AC-13.11**, **AC-13.12**.
+
 ---
 
 ### Architecture Changes
