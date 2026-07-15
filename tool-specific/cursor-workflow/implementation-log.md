@@ -217,6 +217,12 @@
 - Toast via Sonner already wired in C4; showcase page at `/dev/ui` verifies all components.
 - Traces to **FR-UI01**, **AC-13.1**, **AC-13.8**, **AC-13.11**, **AC-13.12**.
 
+### Task C6 — Dashboard Page (2026-07-15)
+- Added `stats-cards.tsx` showing counts for all 5 ticket statuses.
+- Added `recent-tickets-table.tsx` and `dashboard-view.tsx` with live API data.
+- Dashboard uses `useTicketStats` and `useTickets` (5 newest tickets) with loading/error states.
+- Traces to **US-11**, **AC-12.1**.
+
 ---
 
 ### Architecture Changes

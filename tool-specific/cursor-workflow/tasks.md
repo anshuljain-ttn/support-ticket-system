@@ -313,7 +313,7 @@
 ---
 
 ### Task C6: Dashboard Page
-**Status:** Pending  
+**Status:** Complete  
 **Scope:**
 - `app/page.tsx` — Dashboard
 - `components/dashboard/stats-cards.tsx` — 5 status counts
