@@ -243,7 +243,7 @@
 ## Phase C — Frontend Core
 
 ### Task C1: API Client & Types
-**Status:** Pending  
+**Status:** Complete  
 **Scope:**
 - `services/api-client.ts` — Axios instance, interceptors, error parsing
 - `types/api.types.ts` — Response envelope types

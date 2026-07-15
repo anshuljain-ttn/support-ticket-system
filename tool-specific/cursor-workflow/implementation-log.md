@@ -187,6 +187,11 @@
 - Fixed production build: `tsc-alias` rewrites path aliases; swagger resolves `.ts`/`.js` OpenAPI paths file.
 - Verified `docker build` succeeds.
 
+### Task C1 — API Client & Types (2026-07-15)
+- Added `services/api-client.ts` with Axios instance, error parsing, and response interceptor.
+- Added `types/api.types.ts`, `types/ticket.types.ts`, and `types/user.types.ts` mirroring backend contracts.
+- Wired `QueryProvider` to shared `createQueryClient()` from `lib/query-client.ts`.
+
 ---
 
 ### Architecture Changes
