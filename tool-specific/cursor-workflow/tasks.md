@@ -229,7 +229,7 @@
 ---
 
 ### Task B13: Backend Dockerfile
-**Status:** Pending  
+**Status:** Complete  
 **Scope:**
 - Multi-stage Dockerfile (build + production)
 - `.dockerignore`

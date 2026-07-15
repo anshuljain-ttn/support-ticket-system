@@ -1,9 +1,21 @@
+import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import swaggerJsdoc from 'swagger-jsdoc';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+function resolveOpenApiPathsFile(): string {
+  const basePath = path.join(__dirname, '../docs/openapi.paths');
+  const tsPath = `${basePath}.ts`;
+
+  if (existsSync(tsPath)) {
+    return tsPath;
+  }
+
+  return `${basePath}.js`;
+}
 
 const ticketStatusEnum = ['Open', 'In Progress', 'Resolved', 'Closed', 'Cancelled'];
 const ticketPriorityEnum = ['Low', 'Medium', 'High', 'Critical'];
@@ -287,7 +299,7 @@ export const swaggerSpec = swaggerJsdoc({
       },
     },
   },
-  apis: [path.join(__dirname, '../docs/openapi.paths.ts')],
+  apis: [resolveOpenApiPathsFile()],
 });
 
 export const documentedPathCount = Object.keys(

@@ -180,6 +180,13 @@
 - Refactored `tickets.test.ts`, `comments.test.ts`, and `users.test.ts` to use shared helpers.
 - 96 tests passing with isolated MongoMemoryServer per integration suite.
 
+### Task B13 — Backend Dockerfile (2026-07-15)
+- Added multi-stage `backend/Dockerfile` (Node 20 Alpine build + production).
+- Added `backend/.dockerignore` excluding tests, env files, and dev artifacts.
+- HEALTHCHECK hits `GET /health` via curl.
+- Fixed production build: `tsc-alias` rewrites path aliases; swagger resolves `.ts`/`.js` OpenAPI paths file.
+- Verified `docker build` succeeds.
+
 ---
 
 ### Architecture Changes

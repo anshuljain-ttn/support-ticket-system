@@ -1,0 +1,14 @@
+node_modules
+dist
+coverage
+.env
+.env.*
+!.env.example
+tests
+*.log
+.git
+.gitignore
+.eslintrc.cjs
+.prettierrc
+vitest.config.ts
+npm-debug.log*
