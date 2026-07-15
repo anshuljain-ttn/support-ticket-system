@@ -199,7 +199,20 @@ Seems like @tool-specific/cursor-workflow/prompt-history.md is not updating
 
 ---
 
-### Prompt 14: (Pending — Next Session)
+### Prompt 14: Start Task C3
+
+**Type:** Follow-up  
+**Date:** 2026-07-15
+
+```
+Start Impelementing C3 Task
+```
+
+**Outcome:** Task C3 completed — TanStack Query hooks (`use-tickets`, `use-ticket`, `use-users`, `use-comments`, `use-ticket-stats`), shared `ticket-keys.ts`, and `getTicketStats()` service helper.
+
+---
+
+### Prompt 15: (Pending — Next Session)
 
 **Type:** Follow-up  
 **Date:** TBD

@@ -198,6 +198,12 @@
 - Added `lib/status-transitions.ts` mirroring backend workflow rules for UI use.
 - Query param serializer supports repeated array keys for status/priority filters.
 
+### Task C3 — TanStack Query Hooks (2026-07-15)
+- Added `hooks/ticket-keys.ts` for stable TanStack Query cache keys.
+- Added `use-tickets` (list/search + `useCreateTicket`), `use-ticket` (detail + update mutations), `use-users`, `use-comments`, and `use-ticket-stats`.
+- Added `getTicketStats()` to ticket service (client-side aggregation until a dedicated API exists).
+- Mutations invalidate list, detail, and stats queries as appropriate.
+
 ---
 
 ### Architecture Changes

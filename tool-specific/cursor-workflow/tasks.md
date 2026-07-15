@@ -269,7 +269,7 @@
 ---
 
 ### Task C3: TanStack Query Hooks
-**Status:** Pending  
+**Status:** Complete  
 **Scope:**
 - `hooks/use-tickets.ts` — List with filters
 - `hooks/use-ticket.ts` — Single ticket detail
