@@ -383,7 +383,22 @@ How you provide project context to the tool.
 How you would reuse this workflow in a real project.
 ```
 
-**Outcome:** Created `tool-workflow.md` at repo root with all 11 required sections, concrete examples from this project, and links to supporting artifacts. Updated README, AI-WORKFLOW.md, and cursor-workflow README to point to it as the primary deliverable.
+**Outcome:** Created `tool-workflow.md` at repo root with all 11 required sections, concrete examples from this project, and links to supporting artifacts. Updated README and cursor-workflow README to point to it as the primary deliverable.
+
+---
+
+### Prompt 27: Assignment Folder Structure & Authenticity Signals
+
+**Type:** Refinement  
+**Date:** 2026-07-15
+
+```
+Notes for a Human Glance — Authenticity Signals
+No workflow artifacts / Repository structure incomplete
+Missing tool-specific/, docs/, prompts/, or artifacts/ folders
+```
+
+**Outcome:** Created assignment-aligned folder structure: `docs/`, `prompts/`, `artifacts/` with README indexes and symlinks to canonical `tool-specific/cursor-workflow/` files. Added `SUBMISSION.md` reviewer checklist, `artifacts/form-answers.md` (Q&A format), `tool-specific/README.md`. Updated README, `tool-workflow.md`, and AC-1.1.
 
 ---
 

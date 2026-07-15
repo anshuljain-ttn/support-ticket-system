@@ -1,7 +1,17 @@
 # Tool Workflow
 
-> How AI was used to build the Support Ticket Management System.  
-> **Supporting evidence:** [`tool-specific/cursor-workflow/`](tool-specific/cursor-workflow/) (prompt history, implementation log, spec, tasks).
+> How AI was used to build the Support Ticket Management System.
+
+**Reviewer checklist:** [`SUBMISSION.md`](SUBMISSION.md)
+
+**Supporting evidence:**
+
+| Assignment folder | Contents |
+|-------------------|----------|
+| [`docs/`](docs/) | Design spec, architecture, acceptance criteria |
+| [`prompts/`](prompts/) | Prompt history (26+ prompts) |
+| [`artifacts/`](artifacts/) | Form answers, implementation log, tasks, cursor rules |
+| [`tool-specific/cursor-workflow/`](tool-specific/cursor-workflow/) | Canonical source files (symlinked into folders above) |
 
 ---
 
@@ -353,8 +363,9 @@ This workflow maps directly to a production team using AI-assisted development.
 ### How to verify claims in this document
 
 ```bash
-cat tool-workflow.md
-less tool-specific/cursor-workflow/prompt-history.md
-less tool-specific/cursor-workflow/implementation-log.md
+cat SUBMISSION.md tool-workflow.md
+ls docs/ prompts/ artifacts/ tool-specific/
+less prompts/prompt-history.md
+less artifacts/implementation-log.md
 cd backend && npm test   # 174 tests
 ```

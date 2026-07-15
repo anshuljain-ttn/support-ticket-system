@@ -2,18 +2,19 @@
 
 A production-quality support ticket application with JWT authentication, role-based access control, ownership rules, audit history, and a modern SaaS-style UI.
 
-> **Built with Cursor (AI-assisted).** Workflow evidence is in **[tool-workflow.md](tool-workflow.md)** and [`tool-specific/cursor-workflow/`](tool-specific/cursor-workflow/).
+> **Submission / AI workflow:** Start at **[SUBMISSION.md](SUBMISSION.md)** → **[tool-workflow.md](tool-workflow.md)** → `docs/` · `prompts/` · `artifacts/` · `tool-specific/`
 
-## AI Workflow (Reviewer Entry Point)
+## Submission & AI Workflow (Reviewer Entry Point)
 
 | What to review | Where |
 |----------------|-------|
-| **Required submission** | **[tool-workflow.md](tool-workflow.md)** ← start here |
-| **Every prompt + outcome** | [`tool-specific/cursor-workflow/prompt-history.md`](tool-specific/cursor-workflow/prompt-history.md) |
-| **Decisions, bugs, debugging** | [`tool-specific/cursor-workflow/implementation-log.md`](tool-specific/cursor-workflow/implementation-log.md) |
-| **Context fed to the agent** | [`project-context.md`](tool-specific/cursor-workflow/project-context.md), [`cursor-rules-or-instructions.md`](tool-specific/cursor-workflow/cursor-rules-or-instructions.md) |
-| **Spec & acceptance criteria** | [`spec.md`](tool-specific/cursor-workflow/spec.md), [`acceptance-criteria.md`](tool-specific/cursor-workflow/acceptance-criteria.md) |
-| **Phased task plan** | [`tasks.md`](tool-specific/cursor-workflow/tasks.md) |
+| **Checklist (human glance)** | **[SUBMISSION.md](SUBMISSION.md)** |
+| **Required workflow doc** | **[tool-workflow.md](tool-workflow.md)** |
+| **Form answers** | [`artifacts/form-answers.md`](artifacts/form-answers.md) |
+| **Design specs** | [`docs/`](docs/) — spec, architecture, acceptance criteria |
+| **Prompt log** | [`prompts/prompt-history.md`](prompts/prompt-history.md) |
+| **Iteration logs** | [`artifacts/implementation-log.md`](artifacts/implementation-log.md), [`artifacts/tasks.md`](artifacts/tasks.md) |
+| **Tool-specific (Cursor)** | [`tool-specific/cursor-workflow/`](tool-specific/cursor-workflow/) |
 
 **Tool:** Cursor IDE (Agent mode) · **Method:** spec-first → phased prompts → test → log
 
@@ -69,25 +70,27 @@ Run `npm run seed` in `backend/` on first setup. Password is set via `SEED_DEFAU
 
 ```
 support-ticket-system/
+├── SUBMISSION.md            # Reviewer checklist — start here
 ├── tool-workflow.md         # Required AI workflow submission
+├── docs/                    # Design spec, architecture, acceptance criteria
+├── prompts/                 # Prompt history (26+ prompts)
+├── artifacts/               # Form answers, implementation log, tasks
+├── tool-specific/           # Cursor workflow (canonical source)
+│   └── cursor-workflow/
+│       ├── spec.md
+│       ├── prompt-history.md
+│       ├── implementation-log.md
+│       └── ...
 ├── frontend/src/
 │   ├── app/login/           # Public login
 │   ├── app/(app)/           # Protected routes (dashboard, tickets, profile)
 │   ├── components/          # UI, layout, tickets, auth
 │   ├── providers/           # Auth, theme, query
 │   └── middleware.ts        # Route protection
-├── backend/src/
-│   ├── services/            # auth, permission, audit, ticket, comment
-│   ├── middleware/          # authenticate, validate, error
-│   └── tests/               # 174 tests (unit + integration)
-└── tool-specific/cursor-workflow/   # Supporting workflow artifacts
-    ├── prompt-history.md            # All prompts and outcomes
-    ├── implementation-log.md        # Decisions, bugs, debugging guide
-    ├── project-context.md           # Architecture context for agent
-    ├── cursor-rules-or-instructions.md
-    ├── spec.md
-    ├── tasks.md
-    └── acceptance-criteria.md
+└── backend/src/
+    ├── services/            # auth, permission, audit, ticket, comment
+    ├── middleware/          # authenticate, validate, error
+    └── tests/               # 174 tests (unit + integration)
 ```
 
 ## Features
@@ -191,8 +194,13 @@ cd frontend && npm run typecheck && npm run lint
 
 | Document | Description |
 |----------|-------------|
-| **[tool-workflow.md](tool-workflow.md)** | **Required submission** — AI tool usage across requirements, planning, code, testing, debugging, review |
-| [`tool-specific/cursor-workflow/`](tool-specific/cursor-workflow/) | Supporting artifacts (prompt history, implementation log, spec, tasks) |
+| **[SUBMISSION.md](SUBMISSION.md)** | Reviewer checklist — all deliverables and folder map |
+| **[tool-workflow.md](tool-workflow.md)** | **Required submission** — full AI lifecycle narrative |
+| [`artifacts/form-answers.md`](artifacts/form-answers.md) | Assignment form answers (Q&A format) |
+| [`docs/`](docs/) | Design spec, architecture, acceptance criteria |
+| [`prompts/`](prompts/) | Prompt history |
+| [`artifacts/`](artifacts/) | Implementation log, tasks, cursor rules |
+| [`tool-specific/`](tool-specific/) | Cursor-specific workflow folder |
 
 ## License
 

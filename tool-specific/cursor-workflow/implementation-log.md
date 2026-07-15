@@ -349,6 +349,12 @@
 - Linked from README (primary deliverable), AI-WORKFLOW.md, and cursor-workflow README.
 - Logged as Prompt 26 in `prompt-history.md`.
 
+### Session — 2026-07-15: Assignment Folder Structure
+- Created `docs/`, `prompts/`, `artifacts/` at repo root per assignment outline (symlinks to `tool-specific/cursor-workflow/` canonical files).
+- Added `SUBMISSION.md` reviewer checklist, `artifacts/form-answers.md` (assignment Q&A), `tool-specific/README.md`.
+- Updated README, `tool-workflow.md`, AC-1.1 for full folder visibility.
+- **Why:** Review feedback — "no workflow artifacts" / "missing docs, prompts, artifacts folders" (content existed but not in expected layout).
+
 ### Task H1 — Swagger v2 (2026-07-15)
 - Added Auth tag and login/logout/me OpenAPI paths; updated User schema.
 
