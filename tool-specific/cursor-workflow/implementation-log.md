@@ -223,6 +223,15 @@
 - Dashboard uses `useTicketStats` and `useTickets` (5 newest tickets) with loading/error states.
 - Traces to **US-11**, **AC-12.1**.
 
+### Task C7 — Ticket List Page (2026-07-15)
+- Added `lib/ticket-list-params.ts` for URL `searchParams` parse/serialize/merge (filters, sort, pagination).
+- Added `lib/format.ts` with shared `formatShortDate()` used by dashboard and ticket table.
+- Added `ticket-table.tsx`, `ticket-filters.tsx`, and `ticket-list-view.tsx` with status/priority/assignee filters, search, sort, and pagination.
+- Wired `app/tickets/page.tsx` with `Suspense` boundary for `useSearchParams`.
+- Search field uses keyed remount (`SearchField`) to sync URL query without `useEffect` setState (eslint `react-hooks/set-state-in-effect`).
+- Verified: `npm run typecheck` and `npm run lint` pass. `npm run build` blocked by Google Fonts fetch in sandbox (pre-existing layout dependency).
+- Traces to **US-2**, **US-3**, **AC-12.2**, **AC-12.3**, **D7**.
+
 ---
 
 ### Architecture Changes

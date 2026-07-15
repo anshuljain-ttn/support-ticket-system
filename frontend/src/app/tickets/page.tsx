@@ -1,12 +1,24 @@
+import { Suspense } from 'react';
+
+import { TicketListView } from '@/components/tickets/ticket-list-view';
+import { TicketTableSkeleton } from '@/components/common/loading-skeleton';
 import { PageContainer } from '@/components/layout/page-container';
 
-export default function TicketListPage() {
+function TicketListFallback() {
   return (
     <PageContainer
       title="Tickets"
       description="Browse, filter, and search support tickets."
     >
-      <p className="text-muted-foreground">Ticket list — implementation in progress.</p>
+      <TicketTableSkeleton rows={10} />
     </PageContainer>
+  );
+}
+
+export default function TicketListPage() {
+  return (
+    <Suspense fallback={<TicketListFallback />}>
+      <TicketListView />
+    </Suspense>
   );
 }

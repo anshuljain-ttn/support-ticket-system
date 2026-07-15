@@ -4,18 +4,30 @@ import { EmptyState } from '@/components/common/empty-state';
 import { PriorityBadge } from '@/components/tickets/priority-badge';
 import { StatusBadge } from '@/components/tickets/status-badge';
 import { formatShortDate } from '@/lib/format';
+import { cn } from '@/lib/utils';
 import type { Ticket } from '@/types/ticket.types';
+import type { User } from '@/types/user.types';
 
-type RecentTicketsTableProps = {
+type TicketTableProps = {
   tickets: Ticket[];
+  usersById: Record<string, User>;
+  className?: string;
+  emptyTitle?: string;
+  emptyDescription?: string;
 };
 
-export function RecentTicketsTable({ tickets }: RecentTicketsTableProps) {
+export function TicketTable({
+  tickets,
+  usersById,
+  className,
+  emptyTitle = 'No tickets found',
+  emptyDescription = 'Try adjusting your filters or create a new support ticket.',
+}: TicketTableProps) {
   if (tickets.length === 0) {
     return (
       <EmptyState
-        title="No tickets yet"
-        description="Create a support ticket to see recent activity here."
+        title={emptyTitle}
+        description={emptyDescription}
         action={
           <Link
             href="/tickets/new"
@@ -29,7 +41,7 @@ export function RecentTicketsTable({ tickets }: RecentTicketsTableProps) {
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-border">
+    <div className={cn('overflow-hidden rounded-xl border border-border', className)}>
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-border text-sm">
           <thead className="bg-muted/40">
@@ -37,6 +49,7 @@ export function RecentTicketsTable({ tickets }: RecentTicketsTableProps) {
               <th className="px-4 py-3 text-left font-medium text-muted-foreground">Title</th>
               <th className="px-4 py-3 text-left font-medium text-muted-foreground">Status</th>
               <th className="px-4 py-3 text-left font-medium text-muted-foreground">Priority</th>
+              <th className="px-4 py-3 text-left font-medium text-muted-foreground">Assignee</th>
               <th className="px-4 py-3 text-left font-medium text-muted-foreground">Created</th>
             </tr>
           </thead>
@@ -57,7 +70,14 @@ export function RecentTicketsTable({ tickets }: RecentTicketsTableProps) {
                 <td className="px-4 py-3">
                   <PriorityBadge priority={ticket.priority} />
                 </td>
-                <td className="px-4 py-3 text-muted-foreground">{formatShortDate(ticket.createdAt)}</td>
+                <td className="px-4 py-3 text-muted-foreground">
+                  {ticket.assignedTo
+                    ? (usersById[ticket.assignedTo]?.name ?? 'Unknown user')
+                    : 'Unassigned'}
+                </td>
+                <td className="px-4 py-3 text-muted-foreground">
+                  {formatShortDate(ticket.createdAt)}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -65,4 +85,11 @@ export function RecentTicketsTable({ tickets }: RecentTicketsTableProps) {
       </div>
     </div>
   );
+}
+
+export function buildUsersById(users: User[]): Record<string, User> {
+  return users.reduce<Record<string, User>>((acc, user) => {
+    acc[user._id] = user;
+    return acc;
+  }, {});
 }

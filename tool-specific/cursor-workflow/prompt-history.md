@@ -251,7 +251,20 @@ Continue with C6
 
 ---
 
-### Prompt 18: (Pending — Next Session)
+### Prompt 18: Continue C7
+
+**Type:** Follow-up  
+**Date:** 2026-07-15
+
+```
+Continue
+```
+
+**Outcome:** Task C7 completed — ticket list page with URL-synced filters (search, status, priority, assignee, sort), paginated table, loading/error states, and shared date formatting.
+
+---
+
+### Prompt 19: (Pending — Next Session)
 
 **Type:** Follow-up  
 **Date:** TBD

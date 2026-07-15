@@ -326,7 +326,7 @@
 ---
 
 ### Task C7: Ticket List Page
-**Status:** Pending  
+**Status:** Complete  
 **Scope:**
 - `app/tickets/page.tsx`
 - `components/tickets/ticket-table.tsx`
