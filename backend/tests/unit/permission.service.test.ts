@@ -59,6 +59,59 @@ describe('permissionService', () => {
       const ticket = createTicket({ createdBy: employee._id });
       expect(permissionService.canViewTicket(admin, ticket)).toBe(true);
     });
+
+    it('allows admin to view own ticket via ownership rule', () => {
+      const ticket = createTicket({ createdBy: admin._id });
+      expect(permissionService.canViewTicket(admin, ticket)).toBe(true);
+    });
+
+    it('allows admin viewing own ticket when assigned to self', () => {
+      const ticket = createTicket({ createdBy: admin._id, assignedTo: admin._id });
+      expect(permissionService.canViewTicket(admin, ticket)).toBe(true);
+    });
+
+    it('allows admin viewing ticket assigned to them regardless of creator', () => {
+      const ticket = createTicket({ createdBy: employee._id, assignedTo: admin._id });
+      expect(permissionService.canViewTicket(admin, ticket)).toBe(true);
+    });
+  });
+
+  describe('getTicketListFilter', () => {
+    it('returns empty filter for super admin (all tickets)', () => {
+      expect(permissionService.getTicketListFilter(superAdmin)).toEqual({});
+    });
+
+    it('scopes employee list to own created tickets', () => {
+      const filter = permissionService.getTicketListFilter(employee);
+      expect(filter).toEqual({ createdBy: new Types.ObjectId(employee._id) });
+    });
+
+    it('scopes admin list to own, assigned, and active non-own tickets', () => {
+      const filter = permissionService.getTicketListFilter(admin);
+
+      expect(filter).toHaveProperty('$or');
+      expect(filter.$or).toHaveLength(3);
+      expect(filter.$or?.[0]).toEqual({ createdBy: new Types.ObjectId(admin._id) });
+      expect(filter.$or?.[1]).toEqual({ assignedTo: new Types.ObjectId(admin._id) });
+      expect(filter.$or?.[2]).toEqual({
+        createdBy: { $ne: new Types.ObjectId(admin._id) },
+        status: {
+          $in: [TicketStatuses.OPEN, TicketStatuses.IN_PROGRESS, TicketStatuses.RESOLVED],
+        },
+      });
+    });
+  });
+
+  describe('canCommentOnTicket', () => {
+    it('mirrors canViewTicket for employee owner', () => {
+      const ticket = createTicket({ createdBy: employee._id });
+      expect(permissionService.canCommentOnTicket(employee, ticket)).toBe(true);
+    });
+
+    it('denies employee commenting on another employee ticket', () => {
+      const ticket = createTicket({ createdBy: otherEmployee._id });
+      expect(permissionService.canCommentOnTicket(employee, ticket)).toBe(false);
+    });
   });
 
   describe('canCreateTicket', () => {
@@ -180,6 +233,37 @@ describe('permissionService', () => {
         TicketStatuses.CANCELLED,
       ]);
     });
+
+    it('returns empty array for employee owner after Open status', () => {
+      const ticket = createTicket({
+        createdBy: employee._id,
+        status: TicketStatuses.IN_PROGRESS,
+      });
+      expect(permissionService.getAllowedTransitionsForUser(employee, ticket)).toEqual([]);
+    });
+
+    it('returns only Cancelled for admin owner on open ticket', () => {
+      const ticket = createTicket({ createdBy: admin._id, status: TicketStatuses.OPEN });
+      expect(permissionService.getAllowedTransitionsForUser(admin, ticket)).toEqual([
+        TicketStatuses.CANCELLED,
+      ]);
+    });
+
+    it('returns empty array for admin owner after Open status', () => {
+      const ticket = createTicket({ createdBy: admin._id, status: TicketStatuses.IN_PROGRESS });
+      expect(permissionService.getAllowedTransitionsForUser(admin, ticket)).toEqual([]);
+    });
+
+    it('returns workflow transitions for admin on In Progress employee ticket', () => {
+      const ticket = createTicket({
+        createdBy: employee._id,
+        status: TicketStatuses.IN_PROGRESS,
+      });
+      expect(permissionService.getAllowedTransitionsForUser(admin, ticket)).toEqual([
+        TicketStatuses.RESOLVED,
+        TicketStatuses.CANCELLED,
+      ]);
+    });
   });
 
   describe('assert methods', () => {
@@ -191,12 +275,44 @@ describe('permissionService', () => {
       );
     });
 
+    it('throws FORBIDDEN when inactive user creates ticket', () => {
+      const inactive = { ...employee, isActive: false };
+
+      expect(() => permissionService.assertCanCreateTicket(inactive)).toThrow(
+        expect.objectContaining({ code: ErrorCodes.FORBIDDEN }),
+      );
+    });
+
+    it('throws FORBIDDEN when employee updates own ticket after Open', () => {
+      const ticket = createTicket({ createdBy: employee._id, status: TicketStatuses.IN_PROGRESS });
+
+      expect(() => permissionService.assertCanUpdateTicket(employee, ticket)).toThrow(
+        expect.objectContaining({ code: ErrorCodes.FORBIDDEN }),
+      );
+    });
+
+    it('throws FORBIDDEN when employee assigns ticket', () => {
+      const ticket = createTicket({ createdBy: employee._id });
+
+      expect(() => permissionService.assertCanAssignTicket(employee, ticket)).toThrow(
+        expect.objectContaining({ code: ErrorCodes.FORBIDDEN }),
+      );
+    });
+
     it('throws FORBIDDEN when admin transitions own ticket', () => {
       const ticket = createTicket({ createdBy: admin._id, status: TicketStatuses.OPEN });
 
       expect(() =>
         permissionService.assertCanChangeStatus(admin, ticket, TicketStatuses.IN_PROGRESS),
       ).toThrow(expect.objectContaining({ code: ErrorCodes.FORBIDDEN }));
+    });
+
+    it('throws FORBIDDEN when employee comments on another ticket', () => {
+      const ticket = createTicket({ createdBy: otherEmployee._id });
+
+      expect(() => permissionService.assertCanCommentOnTicket(employee, ticket)).toThrow(
+        expect.objectContaining({ code: ErrorCodes.FORBIDDEN }),
+      );
     });
   });
 });

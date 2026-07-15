@@ -329,6 +329,26 @@
 - Added `auth.test.ts`, `permissions.test.ts`, `permission.service.test.ts`.
 - Updated all integration tests for cookie auth. **137 tests passing**.
 
+### Session — 2026-07-15: Deeper Unit & Failure-Mode Tests
+- Expanded `permission.service.test.ts` with `getTicketListFilter`, admin ownership edge cases, all `assertCan*` methods, and `getAllowedTransitionsForUser` status matrix.
+- Expanded `status-machine.test.ts` with per-status `getAllowedTransitions`, terminal-state rejection, and error detail assertions.
+- Added `failure-modes.test.ts` integration suite: list/search scope isolation, permission-before-state-machine ordering, idempotent status PATCH, permission flags on detail response, and audit history on status/assign.
+- Documented four real bugs and a debugging guide in the Bug Fixes section below.
+- Updated `swagger.test.ts` endpoint count (9 → 12) for v2 auth routes.
+- **174 tests passing**.
+
+### Session — 2026-07-15: AI Workflow Visibility
+- Created root `AI-WORKFLOW.md` — reviewer entry point with tool, approach, artifact index, context strategy, iteration examples, verification commands.
+- Added prominent "AI Workflow" section to root `README.md` with direct links to all artifacts.
+- Added `tool-specific/cursor-workflow/README.md` as folder index pointing back to root guide.
+- Updated `prompt-history.md` with Prompts 23–25 (test deepening, visibility feedback, visibility fix).
+- **Why:** Review feedback scored AI Workflow 10/25 — artifacts existed but were buried; now visible from README first screen.
+
+### Session — 2026-07-15: tool-workflow.md Submission
+- Created `tool-workflow.md` at repo root — required submission covering all 11 rubric sections with project-specific examples.
+- Linked from README (primary deliverable), AI-WORKFLOW.md, and cursor-workflow README.
+- Logged as Prompt 26 in `prompt-history.md`.
+
 ### Task H1 — Swagger v2 (2026-07-15)
 - Added Auth tag and login/logout/me OpenAPI paths; updated User schema.
 
@@ -357,7 +377,56 @@
 
 ### Bug Fixes
 
-*None yet — implementation not started.*
+#### Bug Fix: Protected Routes Mounted at Wrong Prefix (v2)
+- **Issue:** After adding auth middleware, ticket and comment routes returned 404 for all authenticated requests.
+- **Root cause:** Protected routes were mounted at the app root (`/`) instead of under `/tickets`, so paths like `GET /tickets/:id` never matched.
+- **How it was debugged:** Logged incoming request paths in the error middleware; compared `routes/index.ts` mount points against integration test URLs. Supertest calls failed with 404 while route handlers were never invoked.
+- **Fix:** Remounted protected ticket routes under the `/tickets` prefix only; left `/auth` and `/health` at root.
+- **Files:** `backend/src/routes/index.ts`
+
+#### Bug Fix: Swagger OpenAPI Paths Missing in Production Build
+- **Issue:** `GET /api-docs` returned an empty spec in the Docker production image.
+- **Root cause:** `swagger-jsdoc` glob pointed at `.ts` source files, which are not copied into the production image after `tsc` compile.
+- **How it was debugged:** Built the Docker image locally, hit `/api-docs.json`, and confirmed zero paths. Compared dev (ts-node) vs prod (compiled `.js`) file resolution.
+- **Fix:** Updated swagger config to resolve both `.ts` (dev) and `.js` (prod) OpenAPI path files; added `tsc-alias` for path alias rewriting in the build step.
+- **Files:** `backend/src/config/swagger.ts`, `backend/Dockerfile`, `backend/package.json`
+
+#### Bug Fix: Employee Status Change Returned 400 Instead of 403
+- **Issue:** When an employee attempted a workflow transition they were not permitted to perform (e.g. `Open → Resolved`), the API returned `INVALID_STATUS_TRANSITION` (400) instead of `FORBIDDEN` (403).
+- **Root cause:** `ticket.service.updateStatus` called `validateTransition` before `assertCanChangeStatus`, so the state machine rejected the request before the permission layer ran.
+- **How it was debugged:** Wrote a failing integration test expecting 403; traced the call order in `ticket.service.ts` and confirmed permission checks ran second.
+- **Fix:** Reordered `updateStatus` to call `assertCanChangeStatus` before `validateTransition`.
+- **Files:** `backend/src/services/ticket.service.ts`
+- **Regression test:** `backend/tests/integration/failure-modes.test.ts` — "employee Open -> Resolved returns 403"
+
+#### Bug Fix: Vitest Helper Missing `expect` Import
+- **Issue:** Backend lint failed in CI on `tests/helpers/test-app.ts`.
+- **Root cause:** `expectValidationError` used `expect` without importing it from vitest.
+- **Fix:** Added `import { expect } from 'vitest'`.
+- **Files:** `backend/tests/helpers/test-app.ts`
+
+---
+
+### Debugging Guide
+
+| Symptom | How to debug |
+|---------|--------------|
+| 401 on all API calls | Check JWT cookie name matches `AUTH_COOKIE_NAME` / `NEXT_PUBLIC_AUTH_COOKIE_NAME`; verify `withCredentials: true` on frontend Axios |
+| 403 on ticket access | Inspect `permission.service.ts` — check role, ownership (`createdBy`), and `assignedTo` |
+| 400 `INVALID_STATUS_TRANSITION` | Check `status-transitions.ts` map; confirm permission check ran first (should be 403 if role lacks access) |
+| Empty ticket list for admin | Verify `getTicketListFilter` scope — admin sees own tickets, assigned tickets, and active non-own tickets |
+| Swagger empty in Docker | Confirm production build resolves `.js` OpenAPI paths (see bug fix above) |
+| Test DB pollution | Each suite uses `MongoMemoryServer` + `clearTestDatabase()` in `afterEach` |
+
+**Runtime logging:** Set `LOG_LEVEL=debug` in `backend/.env` to enable HTTP request/response logging via `logger.middleware.ts`.
+
+**Test commands:**
+```bash
+cd backend && npm test                              # full suite
+cd backend && npx vitest run tests/unit             # unit only
+cd backend && npx vitest run tests/integration      # integration only
+cd backend && npx vitest run tests/integration/failure-modes.test.ts  # edge cases
+```
 
 ---
 

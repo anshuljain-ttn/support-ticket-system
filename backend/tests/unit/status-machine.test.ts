@@ -11,11 +11,23 @@ import { AppError } from '@/utils/app-error.js';
 
 describe('statusMachineService', () => {
   describe('getAllowedTransitions', () => {
-    it("returns allowed transitions for Open", () => {
-      expect(getAllowedTransitions(TicketStatuses.OPEN)).toEqual([
-        TicketStatuses.IN_PROGRESS,
-        TicketStatuses.CANCELLED,
-      ]);
+    it.each([
+      {
+        status: TicketStatuses.OPEN,
+        expected: [TicketStatuses.IN_PROGRESS, TicketStatuses.CANCELLED],
+      },
+      {
+        status: TicketStatuses.IN_PROGRESS,
+        expected: [TicketStatuses.RESOLVED, TicketStatuses.CANCELLED],
+      },
+      {
+        status: TicketStatuses.RESOLVED,
+        expected: [TicketStatuses.CLOSED],
+      },
+      { status: TicketStatuses.CLOSED, expected: [] },
+      { status: TicketStatuses.CANCELLED, expected: [] },
+    ])('returns $expected for $status', ({ status, expected }) => {
+      expect(getAllowedTransitions(status)).toEqual(expected);
     });
   });
 
@@ -58,6 +70,38 @@ describe('statusMachineService', () => {
         expect(error).toBeInstanceOf(AppError);
         expect((error as AppError).code).toBe(ErrorCodes.INVALID_STATUS_TRANSITION);
         expect((error as AppError).statusCode).toBe(400);
+        expect((error as AppError).details).toEqual([
+          {
+            field: 'status',
+            message: "Cannot transition from 'Open' to 'Resolved'",
+          },
+        ]);
+      }
+    });
+
+    it('rejects all transitions from terminal Closed state', () => {
+      const nonTerminalStatuses = [
+        TicketStatuses.OPEN,
+        TicketStatuses.IN_PROGRESS,
+        TicketStatuses.RESOLVED,
+        TicketStatuses.CANCELLED,
+      ];
+
+      for (const target of nonTerminalStatuses) {
+        expect(canTransition(TicketStatuses.CLOSED, target)).toBe(false);
+      }
+    });
+
+    it('rejects all transitions from terminal Cancelled state', () => {
+      const nonTerminalStatuses = [
+        TicketStatuses.OPEN,
+        TicketStatuses.IN_PROGRESS,
+        TicketStatuses.RESOLVED,
+        TicketStatuses.CLOSED,
+      ];
+
+      for (const target of nonTerminalStatuses) {
+        expect(canTransition(TicketStatuses.CANCELLED, target)).toBe(false);
       }
     });
   });

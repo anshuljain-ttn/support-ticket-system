@@ -27,11 +27,14 @@ describe('Swagger / OpenAPI', () => {
     });
   });
 
-  it('documents all 9 API endpoints', () => {
-    expect(documentedOperationCount).toBe(9);
+  it('documents all 12 API endpoints', () => {
+    expect(documentedOperationCount).toBe(12);
 
     const paths = (swaggerSpec as { paths: Record<string, Record<string, unknown>> }).paths;
 
+    expect(paths['/auth/login']?.post).toBeDefined();
+    expect(paths['/auth/logout']?.post).toBeDefined();
+    expect(paths['/auth/me']?.get).toBeDefined();
     expect(paths['/health']?.get).toBeDefined();
     expect(paths['/users']?.get).toBeDefined();
     expect(paths['/tickets']?.get).toBeDefined();

@@ -316,12 +316,74 @@ Continue with the complete Roadmap
 
 ---
 
-### Prompt 23: (Pending — Next Session)
+### Prompt 23: Review Feedback — Deeper Tests & Debugging Docs
+
+**Type:** Bug Fix  
+**Date:** 2026-07-15
+
+```
+got these two feedbacks
+
+4. Code Implementation — 12/15
+...
+What to grow: Add more granular unit tests for permission checks and state transitions.
+
+5. Testing, Debugging, and Review — 14/20
+...
+What to grow: Document specific bugs found and how they were debugged; add failure mode tests.
+```
+
+**Outcome:** Expanded unit tests for `permission.service` and `status-machine`; added `failure-modes.test.ts` integration suite (scope isolation, permission-before-state-machine ordering, audit history, permission flags). Documented 4 bugs with debug steps and a debugging guide in `implementation-log.md`. Test count 137 → 174.
+
+---
+
+### Prompt 24: Review Feedback — AI Workflow Visibility
 
 **Type:** Follow-up  
-**Date:** TBD
+**Date:** 2026-07-15
 
-*To be filled on next implementation prompt.*
+```
+Why this feedback
+2. AI Workflow and Prompting — 10/25
+Missing; no artifact evidence
+...
+What to grow: Capture and submit prompt history, context-setting approach, iteration logs.
+```
+
+**Outcome:** Explained that artifacts existed in `tool-specific/cursor-workflow/` but were not discoverable from README/submission. Identified gaps: no root-level workflow doc, prompt history incomplete, no explicit "AI tool usage" narrative.
+
+---
+
+### Prompt 25: Fix Workflow Visibility
+
+**Type:** Refinement  
+**Date:** 2026-07-15
+
+```
+Fix their visibility
+```
+
+**Outcome:** Created root `AI-WORKFLOW.md` (tool, approach, artifact index, context strategy, iteration examples, verification steps). Added prominent "AI Workflow" section to README with direct links. Expanded project structure tree to list all workflow files. Updated this prompt history (Prompts 23–25).
+
+---
+
+### Prompt 26: Required tool-workflow.md Submission
+
+**Type:** Original  
+**Date:** 2026-07-15
+
+```
+This is expected
+
+Expected Submission
+Submit a document named tool-workflow.md covering:
+Primary AI tool used.
+How you provide project context to the tool.
+...
+How you would reuse this workflow in a real project.
+```
+
+**Outcome:** Created `tool-workflow.md` at repo root with all 11 required sections, concrete examples from this project, and links to supporting artifacts. Updated README, AI-WORKFLOW.md, and cursor-workflow README to point to it as the primary deliverable.
 
 ---
 

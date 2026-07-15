@@ -2,6 +2,21 @@
 
 A production-quality support ticket application with JWT authentication, role-based access control, ownership rules, audit history, and a modern SaaS-style UI.
 
+> **Built with Cursor (AI-assisted).** Workflow evidence is in **[tool-workflow.md](tool-workflow.md)** and [`tool-specific/cursor-workflow/`](tool-specific/cursor-workflow/).
+
+## AI Workflow (Reviewer Entry Point)
+
+| What to review | Where |
+|----------------|-------|
+| **Required submission** | **[tool-workflow.md](tool-workflow.md)** ← start here |
+| **Every prompt + outcome** | [`tool-specific/cursor-workflow/prompt-history.md`](tool-specific/cursor-workflow/prompt-history.md) |
+| **Decisions, bugs, debugging** | [`tool-specific/cursor-workflow/implementation-log.md`](tool-specific/cursor-workflow/implementation-log.md) |
+| **Context fed to the agent** | [`project-context.md`](tool-specific/cursor-workflow/project-context.md), [`cursor-rules-or-instructions.md`](tool-specific/cursor-workflow/cursor-rules-or-instructions.md) |
+| **Spec & acceptance criteria** | [`spec.md`](tool-specific/cursor-workflow/spec.md), [`acceptance-criteria.md`](tool-specific/cursor-workflow/acceptance-criteria.md) |
+| **Phased task plan** | [`tasks.md`](tool-specific/cursor-workflow/tasks.md) |
+
+**Tool:** Cursor IDE (Agent mode) · **Method:** spec-first → phased prompts → test → log
+
 ## Architecture Overview
 
 ```
@@ -54,6 +69,7 @@ Run `npm run seed` in `backend/` on first setup. Password is set via `SEED_DEFAU
 
 ```
 support-ticket-system/
+├── tool-workflow.md         # Required AI workflow submission
 ├── frontend/src/
 │   ├── app/login/           # Public login
 │   ├── app/(app)/           # Protected routes (dashboard, tickets, profile)
@@ -63,8 +79,15 @@ support-ticket-system/
 ├── backend/src/
 │   ├── services/            # auth, permission, audit, ticket, comment
 │   ├── middleware/          # authenticate, validate, error
-│   └── tests/               # 137 tests (auth, RBAC, workflow)
-└── tool-specific/cursor-workflow/
+│   └── tests/               # 174 tests (unit + integration)
+└── tool-specific/cursor-workflow/   # Supporting workflow artifacts
+    ├── prompt-history.md            # All prompts and outcomes
+    ├── implementation-log.md        # Decisions, bugs, debugging guide
+    ├── project-context.md           # Architecture context for agent
+    ├── cursor-rules-or-instructions.md
+    ├── spec.md
+    ├── tasks.md
+    └── acceptance-criteria.md
 ```
 
 ## Features
@@ -142,7 +165,7 @@ Backend auto-seeds users on first startup when the database is empty.
 ## Testing
 
 ```bash
-cd backend && npm test        # 137 tests
+cd backend && npm test        # 174 tests
 cd frontend && npm run typecheck && npm run lint
 ```
 
@@ -166,7 +189,10 @@ cd frontend && npm run typecheck && npm run lint
 
 ## Documentation
 
-See `tool-specific/cursor-workflow/` for spec, tasks, acceptance criteria, and implementation log.
+| Document | Description |
+|----------|-------------|
+| **[tool-workflow.md](tool-workflow.md)** | **Required submission** — AI tool usage across requirements, planning, code, testing, debugging, review |
+| [`tool-specific/cursor-workflow/`](tool-specific/cursor-workflow/) | Supporting artifacts (prompt history, implementation log, spec, tasks) |
 
 ## License
 
