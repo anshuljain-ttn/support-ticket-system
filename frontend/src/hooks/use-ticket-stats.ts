@@ -3,11 +3,16 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { ticketKeys } from '@/hooks/ticket-keys';
-import { ticketService } from '@/services/ticket.service';
+import { dashboardService } from '@/services/dashboard.service';
 
-export function useTicketStats() {
+export function useDashboardStats() {
   return useQuery({
-    queryKey: ticketKeys.stats(),
-    queryFn: ticketService.getTicketStats,
+    queryKey: ticketKeys.dashboard(),
+    queryFn: dashboardService.getDashboardStats,
   });
+}
+
+/** @deprecated Use useDashboardStats instead */
+export function useTicketStats() {
+  return useDashboardStats();
 }

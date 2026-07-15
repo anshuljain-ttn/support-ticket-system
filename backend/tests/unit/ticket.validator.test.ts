@@ -44,7 +44,6 @@ describe('ticket validators', () => {
     title: 'VPN issue',
     description: 'Unable to connect to corporate VPN from home.',
     priority: TicketPriorities.HIGH,
-    createdBy: validObjectId,
   };
 
   it('validates create ticket body', () => {
@@ -71,7 +70,7 @@ describe('ticket validators', () => {
   it('validates update ticket body with optional fields', () => {
     const result = updateTicketSchema.safeParse({
       title: 'Updated title',
-      assignedTo: null,
+      priority: TicketPriorities.LOW,
     });
     expect(result.success).toBe(true);
   });

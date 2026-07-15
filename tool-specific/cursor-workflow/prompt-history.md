@@ -290,7 +290,33 @@ Begin next Phase
 
 ---
 
-### Prompt 21: (Pending — Next Session)
+### Prompt 21: v2.0 Auth, RBAC & SaaS UI Refactor
+
+**Type:** Original  
+**Date:** 2026-07-15
+
+```
+[Full v2.0 requirements — authentication, RBAC, ownership, audit history, SaaS UI redesign]
+```
+
+**Outcome:** v2 workflow docs refreshed. Task E2 completed — user model v2, three roles, bcrypt seed (6 users), JWT env config.
+
+---
+
+### Prompt 22: Complete v2 Roadmap
+
+**Type:** Original  
+**Date:** 2026-07-15
+
+```
+Continue with the complete Roadmap
+```
+
+**Outcome:** v2.0 complete — JWT auth, PermissionService RBAC, audit history, 137 backend tests, frontend auth + SaaS UI redesign, role-aware dashboard, README and workflow docs updated.
+
+---
+
+### Prompt 23: (Pending — Next Session)
 
 **Type:** Follow-up  
 **Date:** TBD

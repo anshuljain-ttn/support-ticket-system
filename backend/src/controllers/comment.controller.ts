@@ -11,7 +11,7 @@ export async function addComment(
 ): Promise<void> {
   try {
     const { id } = req.params as { id: string };
-    const comment = await commentService.addComment(id, req.body as CreateCommentBody);
+    const comment = await commentService.addComment(req.user!, id, req.body as CreateCommentBody);
     success(res, comment, 201);
   } catch (error) {
     next(error);

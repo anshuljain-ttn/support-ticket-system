@@ -1,3 +1,5 @@
+import type { UserRole } from '@/types/user.types';
+
 export const TicketStatuses = {
   OPEN: 'Open',
   IN_PROGRESS: 'In Progress',
@@ -13,9 +15,20 @@ export const TicketPriorities = {
   CRITICAL: 'Critical',
 } as const;
 
+export const HistoryActions = {
+  CREATED: 'CREATED',
+  STATUS_CHANGED: 'STATUS_CHANGED',
+  ASSIGNED: 'ASSIGNED',
+  UPDATED: 'UPDATED',
+  PRIORITY_CHANGED: 'PRIORITY_CHANGED',
+  DESCRIPTION_CHANGED: 'DESCRIPTION_CHANGED',
+} as const;
+
 export type TicketStatus = (typeof TicketStatuses)[keyof typeof TicketStatuses];
 
 export type TicketPriority = (typeof TicketPriorities)[keyof typeof TicketPriorities];
+
+export type HistoryAction = (typeof HistoryActions)[keyof typeof HistoryActions];
 
 export type TicketSortOption = 'newest' | 'oldest' | 'priority';
 
@@ -27,6 +40,7 @@ export type Ticket = {
   status: TicketStatus;
   assignedTo: string | null;
   createdBy: string;
+  lastUpdatedBy: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -39,10 +53,29 @@ export type Comment = {
   createdAt: string;
 };
 
+export type HistoryEntry = {
+  _id: string;
+  action: HistoryAction | string;
+  performedBy: string;
+  performedAt: string;
+  previousValue?: unknown;
+  newValue?: unknown;
+  comment?: string;
+};
+
+export type TicketPermissions = {
+  canEdit: boolean;
+  canAssign: boolean;
+  canChangeStatus: boolean;
+  canComment: boolean;
+};
+
 export type TicketDetail = {
   ticket: Ticket;
   comments: Comment[];
+  history: HistoryEntry[];
   allowedTransitions: TicketStatus[];
+  permissions: TicketPermissions;
 };
 
 export type PaginationMeta = {
@@ -59,12 +92,16 @@ export type PaginatedTickets = {
 
 export type TicketStats = Record<TicketStatus, number>;
 
+export type DashboardStats = {
+  role: UserRole;
+  stats: Record<string, number>;
+  recentTickets: Ticket[];
+};
+
 export type CreateTicketInput = {
   title: string;
   description: string;
   priority: TicketPriority;
-  createdBy: string;
-  assignedTo?: string | null;
 };
 
 export type UpdateTicketInput = Partial<{
@@ -74,6 +111,10 @@ export type UpdateTicketInput = Partial<{
   status: TicketStatus;
   assignedTo: string | null;
 }>;
+
+export type AssignTicketInput = {
+  assignedTo: string | null;
+};
 
 export type TicketListParams = {
   status?: TicketStatus[];
@@ -90,5 +131,4 @@ export type TicketSearchParams = TicketListParams & {
 
 export type CreateCommentInput = {
   message: string;
-  createdBy: string;
 };

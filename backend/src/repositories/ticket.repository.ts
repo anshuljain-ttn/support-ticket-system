@@ -25,8 +25,19 @@ type TicketListResult = {
   totalPages: number;
 };
 
+type HistoryPushInput = {
+  action: string;
+  performedBy: string;
+  performedAt: Date;
+  previousValue?: unknown;
+  newValue?: unknown;
+  comment?: string;
+};
+
 function buildFilter(filters: TicketQueryFilters): FilterQuery<TicketDocument> {
-  const query: FilterQuery<TicketDocument> = {};
+  const query: FilterQuery<TicketDocument> = {
+    ...(filters.scopeFilter ?? {}),
+  };
 
   if (filters.status && filters.status.length > 0) {
     query.status = { $in: filters.status };
@@ -38,6 +49,10 @@ function buildFilter(filters: TicketQueryFilters): FilterQuery<TicketDocument> {
 
   if (filters.assignedTo) {
     query.assignedTo = new Types.ObjectId(filters.assignedTo);
+  }
+
+  if (filters.createdBy) {
+    query.createdBy = new Types.ObjectId(filters.createdBy);
   }
 
   if (filters.ticketIds && filters.ticketIds.length > 0) {
@@ -64,14 +79,25 @@ function buildSort(sort: TicketSortOption = 'newest'): Record<string, 1 | -1> {
 }
 
 export const ticketRepository = {
-  async create(input: CreateTicketInput): Promise<TicketDocument> {
+  async create(input: CreateTicketInput, historyEntry: HistoryPushInput): Promise<TicketDocument> {
     const ticket = new Ticket({
       title: input.title,
       description: input.description,
       priority: input.priority,
       status: input.status ?? TicketStatuses.OPEN,
       createdBy: new Types.ObjectId(input.createdBy),
+      lastUpdatedBy: new Types.ObjectId(input.lastUpdatedBy),
       assignedTo: input.assignedTo ? new Types.ObjectId(input.assignedTo) : null,
+      history: [
+        {
+          action: historyEntry.action,
+          performedBy: new Types.ObjectId(historyEntry.performedBy),
+          performedAt: historyEntry.performedAt,
+          previousValue: historyEntry.previousValue,
+          newValue: historyEntry.newValue,
+          comment: historyEntry.comment,
+        },
+      ],
     });
 
     return ticket.save();
@@ -104,7 +130,26 @@ export const ticketRepository = {
       update.assignedTo = input.assignedTo ? new Types.ObjectId(input.assignedTo) : null;
     }
 
+    if (input.lastUpdatedBy !== undefined) {
+      update.lastUpdatedBy = new Types.ObjectId(input.lastUpdatedBy);
+    }
+
     return Ticket.findByIdAndUpdate(id, update, { new: true, runValidators: true }).exec();
+  },
+
+  async pushHistory(id: string, entry: HistoryPushInput): Promise<void> {
+    await Ticket.findByIdAndUpdate(id, {
+      $push: {
+        history: {
+          action: entry.action,
+          performedBy: new Types.ObjectId(entry.performedBy),
+          performedAt: entry.performedAt,
+          previousValue: entry.previousValue,
+          newValue: entry.newValue,
+          comment: entry.comment,
+        },
+      },
+    }).exec();
   },
 
   async deleteById(id: string): Promise<TicketDocument | null> {
@@ -163,8 +208,16 @@ export const ticketRepository = {
     };
   },
 
-  async countByStatus(): Promise<Record<string, number>> {
+  async findRecent(
+    scopeFilter: FilterQuery<TicketDocument>,
+    limit = 5,
+  ): Promise<TicketDocument[]> {
+    return Ticket.find(scopeFilter).sort({ updatedAt: -1 }).limit(limit).exec();
+  },
+
+  async countByStatus(scopeFilter: FilterQuery<TicketDocument> = {}): Promise<Record<string, number>> {
     const results = await Ticket.aggregate<{ _id: string; count: number }>([
+      { $match: scopeFilter },
       { $group: { _id: '$status', count: { $sum: 1 } } },
     ]);
 
@@ -174,9 +227,65 @@ export const ticketRepository = {
     }, {});
   },
 
-  async findIdsByTextSearch(search: string): Promise<string[]> {
+  async countAssignedTo(userId: string, scopeFilter: FilterQuery<TicketDocument> = {}): Promise<number> {
+    return Ticket.countDocuments({
+      ...scopeFilter,
+      assignedTo: new Types.ObjectId(userId),
+    });
+  },
+
+  async countCreatedBy(userId: string, scopeFilter: FilterQuery<TicketDocument> = {}): Promise<number> {
+    return Ticket.countDocuments({
+      ...scopeFilter,
+      createdBy: new Types.ObjectId(userId),
+    });
+  },
+
+  async countWaitingForAction(
+    userId: string,
+    scopeFilter: FilterQuery<TicketDocument> = {},
+  ): Promise<number> {
+    return Ticket.countDocuments({
+      ...scopeFilter,
+      createdBy: { $ne: new Types.ObjectId(userId) },
+      status: {
+        $in: [TicketStatuses.OPEN, TicketStatuses.IN_PROGRESS, TicketStatuses.RESOLVED],
+      },
+    });
+  },
+
+  async averageResolutionHours(scopeFilter: FilterQuery<TicketDocument> = {}): Promise<number> {
+    const results = await Ticket.aggregate<{ averageHours: number }>([
+      {
+        $match: {
+          ...scopeFilter,
+          status: { $in: [TicketStatuses.RESOLVED, TicketStatuses.CLOSED] },
+        },
+      },
+      {
+        $project: {
+          resolutionHours: {
+            $divide: [{ $subtract: ['$updatedAt', '$createdAt'] }, 1000 * 60 * 60],
+          },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          averageHours: { $avg: '$resolutionHours' },
+        },
+      },
+    ]);
+
+    return Math.round(results[0]?.averageHours ?? 0);
+  },
+
+  async findIdsByTextSearch(search: string, scopeFilter: FilterQuery<TicketDocument> = {}): Promise<string[]> {
     const tickets = await Ticket.find(
-      { $text: { $search: search.trim() } },
+      {
+        ...scopeFilter,
+        $text: { $search: search.trim() },
+      },
       { _id: 1 },
     ).exec();
 

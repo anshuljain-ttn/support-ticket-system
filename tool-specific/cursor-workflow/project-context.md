@@ -6,9 +6,9 @@
 
 ## 1. Business Goal
 
-Build a production-quality **internal support ticket management system** where employees create tickets, admins assign and resolve them, and all parties collaborate via comments. The system enforces a strict status workflow and provides search, filtering, and dashboard analytics.
+Build a production-quality **support ticket management system** with JWT authentication, RBAC, ownership rules, audit history, and a modern SaaS UI. Employees create and track tickets; admins and super admins process the lifecycle per role rules.
 
-This project demonstrates: clean architecture, full-stack TypeScript, MongoDB design, comprehensive testing, API documentation, and Docker deployment.
+This project demonstrates: clean architecture, full-stack TypeScript, secure authentication, MongoDB design, comprehensive testing, API documentation, and Docker deployment.
 
 ---
 
@@ -21,7 +21,8 @@ This project demonstrates: clean architecture, full-stack TypeScript, MongoDB de
 | Forms | React Hook Form + Zod | Performant forms with schema validation |
 | Data Fetching | TanStack Query + Axios | Caching, loading states, retry logic |
 | Backend | Express.js + TypeScript | Mature, flexible, well-understood |
-| Database | MongoDB + Mongoose | Document model fits ticket/comment structure |
+| Auth | JWT + bcrypt + HTTP-only cookies | Stateless API auth, secure password storage |
+| Database | MongoDB + Mongoose | Document model fits ticket/comment/history structure |
 | Validation | Zod (both layers) | Single schema language, type inference |
 | Testing | Vitest + Supertest | Fast, ESM-native, Express-compatible |
 | API Docs | Swagger/OpenAPI | Auto-generated, interactive |
@@ -42,7 +43,7 @@ This project demonstrates: clean architecture, full-stack TypeScript, MongoDB de
 ┌─────────────────────────────────────────────────────────────────┐
 │                      API SERVER (Express)                       │
 │    Routes → Controllers → Services → Repositories → Models    │
-│         Middleware: Logger │ Error Handler │ Validator          │
+│         Middleware: Auth │ Authorize │ Logger │ Error │ Validator   │
 └────────────────────────────┬────────────────────────────────────┘
                              │ Mongoose ODM
                              ▼

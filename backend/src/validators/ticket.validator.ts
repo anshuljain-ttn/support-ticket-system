@@ -35,8 +35,6 @@ export const createTicketSchema = z
       .min(10, 'Description must be at least 10 characters')
       .max(5000),
     priority: ticketPrioritySchema,
-    createdBy: objectIdSchema,
-    assignedTo: objectIdSchema.nullable().optional(),
   })
   .strict();
 
@@ -45,13 +43,15 @@ export const updateTicketSchema = z
     title: z.string().trim().min(3).max(200).optional(),
     description: z.string().trim().min(10).max(5000).optional(),
     priority: ticketPrioritySchema.optional(),
-    status: ticketStatusSchema.optional(),
-    assignedTo: objectIdSchema.nullable().optional(),
   })
   .strict();
 
 export const patchTicketStatusSchema = z.object({
   status: ticketStatusSchema,
+});
+
+export const patchTicketAssignSchema = z.object({
+  assignedTo: objectIdSchema.nullable(),
 });
 
 export const ticketIdParamSchema = objectIdParamSchema;
@@ -60,6 +60,7 @@ const ticketQueryBaseSchema = paginationQuerySchema.extend({
   status: stringArrayQuerySchema.pipe(z.array(ticketStatusSchema).optional()),
   priority: stringArrayQuerySchema.pipe(z.array(ticketPrioritySchema).optional()),
   assignedTo: objectIdSchema.optional(),
+  createdBy: objectIdSchema.optional(),
   sort: sortSchema.optional().default('newest'),
 });
 
@@ -72,5 +73,6 @@ export const ticketSearchQuerySchema = ticketQueryBaseSchema.extend({
 export type CreateTicketBody = z.infer<typeof createTicketSchema>;
 export type UpdateTicketBody = z.infer<typeof updateTicketSchema>;
 export type PatchTicketStatusBody = z.infer<typeof patchTicketStatusSchema>;
+export type PatchTicketAssignBody = z.infer<typeof patchTicketAssignSchema>;
 export type TicketListQuery = z.infer<typeof ticketListQuerySchema>;
 export type TicketSearchQuery = z.infer<typeof ticketSearchQuerySchema>;

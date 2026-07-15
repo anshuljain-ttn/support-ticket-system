@@ -1,4 +1,4 @@
-import request from 'supertest';
+import request, { type Agent } from 'supertest';
 import type { Application } from 'express';
 import { expect } from 'vitest';
 
@@ -10,35 +10,43 @@ type CreateTicketOverrides = Partial<{
   title: string;
   description: string;
   priority: TicketPriority;
-  createdBy: string;
-  assignedTo: string | null;
 }>;
+
+const DEFAULT_PASSWORD = 'Password123!';
 
 export function createTestApp(): Application {
   return createApp();
 }
 
-export function buildCreateTicketPayload(
-  createdBy: string,
-  overrides: CreateTicketOverrides = {},
-) {
+export function buildCreateTicketPayload(overrides: CreateTicketOverrides = {}) {
   return {
     title: 'VPN issue',
     description: 'Unable to connect to corporate VPN from home.',
     priority: TicketPriorities.HIGH,
-    createdBy,
     ...overrides,
   };
 }
 
-export async function createTicketViaApi(
+export async function loginViaApi(
   app: Application,
-  createdBy: string,
+  email: string,
+  password = DEFAULT_PASSWORD,
+): Promise<Agent> {
+  const agent = request.agent(app);
+  const response = await agent.post('/auth/login').send({ email, password });
+
+  if (response.status !== 200) {
+    throw new Error(`Expected login success for ${email}, received ${response.status}`);
+  }
+
+  return agent;
+}
+
+export async function createTicketViaApi(
+  agent: Agent,
   overrides: CreateTicketOverrides = {},
 ): Promise<string> {
-  const response = await request(app)
-    .post('/tickets')
-    .send(buildCreateTicketPayload(createdBy, overrides));
+  const response = await agent.post('/tickets').send(buildCreateTicketPayload(overrides));
 
   if (response.status !== 201) {
     throw new Error(`Expected 201 creating ticket, received ${response.status}`);
@@ -67,17 +75,17 @@ export function expectValidationError(
 }
 
 export async function patchTicketStatus(
-  app: Application,
+  agent: Agent,
   ticketId: string,
   status: string,
 ): Promise<request.Response> {
-  return request(app).patch(`/tickets/${ticketId}/status`).send({ status });
+  return agent.patch(`/tickets/${ticketId}/status`).send({ status });
 }
 
 export async function putTicket(
-  app: Application,
+  agent: Agent,
   ticketId: string,
   body: Record<string, unknown>,
 ): Promise<request.Response> {
-  return request(app).put(`/tickets/${ticketId}`).send(body);
+  return agent.put(`/tickets/${ticketId}`).send(body);
 }

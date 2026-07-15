@@ -1,9 +1,12 @@
+import type { Agent } from 'supertest';
+import type { Application } from 'express';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 import { ErrorCodes } from '@/constants/error-codes.js';
 import {
   createTestApp,
   createTicketViaApi,
+  loginViaApi,
   patchTicketStatus,
   putTicket,
 } from '../helpers/test-app.js';
@@ -19,6 +22,9 @@ import { TicketStatuses } from '@/types/ticket.types.js';
 describe('status machine integration', () => {
   let testDb: TestDatabase;
   let users: SeededUsers;
+  let app: Application;
+  let employeeAgent: Agent;
+  let adminAgent: Agent;
 
   beforeAll(async () => {
     testDb = await startTestDatabase();
@@ -26,6 +32,9 @@ describe('status machine integration', () => {
 
   beforeEach(async () => {
     users = await seedTestUsers();
+    app = createTestApp();
+    employeeAgent = await loginViaApi(app, users.employeeEmail);
+    adminAgent = await loginViaApi(app, users.adminEmail);
   });
 
   afterEach(async () => {
@@ -37,31 +46,30 @@ describe('status machine integration', () => {
   });
 
   async function createOpenTicket() {
-    const app = createTestApp();
-    const ticketId = await createTicketViaApi(app, users.employeeId);
-    return { app, ticketId };
+    const ticketId = await createTicketViaApi(employeeAgent);
+    return { ticketId };
   }
 
-  async function moveTicketToInProgress(app: ReturnType<typeof createTestApp>, ticketId: string) {
-    const response = await patchTicketStatus(app, ticketId, TicketStatuses.IN_PROGRESS);
+  async function moveTicketToInProgress(ticketId: string) {
+    const response = await patchTicketStatus(adminAgent, ticketId, TicketStatuses.IN_PROGRESS);
     expect(response.status).toBe(200);
   }
 
-  async function moveTicketToResolved(app: ReturnType<typeof createTestApp>, ticketId: string) {
-    await moveTicketToInProgress(app, ticketId);
-    const response = await patchTicketStatus(app, ticketId, TicketStatuses.RESOLVED);
+  async function moveTicketToResolved(ticketId: string) {
+    await moveTicketToInProgress(ticketId);
+    const response = await patchTicketStatus(adminAgent, ticketId, TicketStatuses.RESOLVED);
     expect(response.status).toBe(200);
   }
 
-  async function moveTicketToClosed(app: ReturnType<typeof createTestApp>, ticketId: string) {
-    await moveTicketToResolved(app, ticketId);
-    const response = await patchTicketStatus(app, ticketId, TicketStatuses.CLOSED);
+  async function moveTicketToClosed(ticketId: string) {
+    await moveTicketToResolved(ticketId);
+    const response = await patchTicketStatus(adminAgent, ticketId, TicketStatuses.CLOSED);
     expect(response.status).toBe(200);
   }
 
   it('AC-5.1: Open -> In Progress succeeds via PATCH', async () => {
-    const { app, ticketId } = await createOpenTicket();
-    const response = await patchTicketStatus(app, ticketId, TicketStatuses.IN_PROGRESS);
+    const { ticketId } = await createOpenTicket();
+    const response = await patchTicketStatus(adminAgent, ticketId, TicketStatuses.IN_PROGRESS);
 
     expect(response.status).toBe(200);
     expect(response.body).toMatchObject({
@@ -71,8 +79,8 @@ describe('status machine integration', () => {
   });
 
   it('AC-5.2: Open -> Resolved fails via PATCH', async () => {
-    const { app, ticketId } = await createOpenTicket();
-    const response = await patchTicketStatus(app, ticketId, TicketStatuses.RESOLVED);
+    const { ticketId } = await createOpenTicket();
+    const response = await patchTicketStatus(adminAgent, ticketId, TicketStatuses.RESOLVED);
 
     expect(response.status).toBe(400);
     expect(response.body).toMatchObject({
@@ -82,10 +90,10 @@ describe('status machine integration', () => {
   });
 
   it('AC-5.3: In Progress -> Resolved succeeds via PATCH', async () => {
-    const { app, ticketId } = await createOpenTicket();
-    await moveTicketToInProgress(app, ticketId);
+    const { ticketId } = await createOpenTicket();
+    await moveTicketToInProgress(ticketId);
 
-    const response = await patchTicketStatus(app, ticketId, TicketStatuses.RESOLVED);
+    const response = await patchTicketStatus(adminAgent, ticketId, TicketStatuses.RESOLVED);
 
     expect(response.status).toBe(200);
     expect(response.body).toMatchObject({
@@ -95,10 +103,10 @@ describe('status machine integration', () => {
   });
 
   it('AC-5.4: Resolved -> Closed succeeds via PATCH', async () => {
-    const { app, ticketId } = await createOpenTicket();
-    await moveTicketToResolved(app, ticketId);
+    const { ticketId } = await createOpenTicket();
+    await moveTicketToResolved(ticketId);
 
-    const response = await patchTicketStatus(app, ticketId, TicketStatuses.CLOSED);
+    const response = await patchTicketStatus(adminAgent, ticketId, TicketStatuses.CLOSED);
 
     expect(response.status).toBe(200);
     expect(response.body).toMatchObject({
@@ -108,10 +116,10 @@ describe('status machine integration', () => {
   });
 
   it('AC-5.5: Closed -> Open fails via PATCH', async () => {
-    const { app, ticketId } = await createOpenTicket();
-    await moveTicketToClosed(app, ticketId);
+    const { ticketId } = await createOpenTicket();
+    await moveTicketToClosed(ticketId);
 
-    const response = await patchTicketStatus(app, ticketId, TicketStatuses.OPEN);
+    const response = await patchTicketStatus(adminAgent, ticketId, TicketStatuses.OPEN);
 
     expect(response.status).toBe(400);
     expect(response.body).toMatchObject({
@@ -121,8 +129,8 @@ describe('status machine integration', () => {
   });
 
   it('AC-5.6: Open -> Cancelled succeeds via PATCH', async () => {
-    const { app, ticketId } = await createOpenTicket();
-    const response = await patchTicketStatus(app, ticketId, TicketStatuses.CANCELLED);
+    const { ticketId } = await createOpenTicket();
+    const response = await patchTicketStatus(employeeAgent, ticketId, TicketStatuses.CANCELLED);
 
     expect(response.status).toBe(200);
     expect(response.body).toMatchObject({
@@ -132,10 +140,10 @@ describe('status machine integration', () => {
   });
 
   it('AC-5.7: In Progress -> Cancelled succeeds via PATCH', async () => {
-    const { app, ticketId } = await createOpenTicket();
-    await moveTicketToInProgress(app, ticketId);
+    const { ticketId } = await createOpenTicket();
+    await moveTicketToInProgress(ticketId);
 
-    const response = await patchTicketStatus(app, ticketId, TicketStatuses.CANCELLED);
+    const response = await patchTicketStatus(adminAgent, ticketId, TicketStatuses.CANCELLED);
 
     expect(response.status).toBe(200);
     expect(response.body).toMatchObject({
@@ -145,10 +153,10 @@ describe('status machine integration', () => {
   });
 
   it('AC-5.8: Resolved -> Cancelled fails via PATCH', async () => {
-    const { app, ticketId } = await createOpenTicket();
-    await moveTicketToResolved(app, ticketId);
+    const { ticketId } = await createOpenTicket();
+    await moveTicketToResolved(ticketId);
 
-    const response = await patchTicketStatus(app, ticketId, TicketStatuses.CANCELLED);
+    const response = await patchTicketStatus(adminAgent, ticketId, TicketStatuses.CANCELLED);
 
     expect(response.status).toBe(400);
     expect(response.body).toMatchObject({
@@ -158,10 +166,10 @@ describe('status machine integration', () => {
   });
 
   it('AC-5.9: Resolved -> In Progress fails via PATCH', async () => {
-    const { app, ticketId } = await createOpenTicket();
-    await moveTicketToResolved(app, ticketId);
+    const { ticketId } = await createOpenTicket();
+    await moveTicketToResolved(ticketId);
 
-    const response = await patchTicketStatus(app, ticketId, TicketStatuses.IN_PROGRESS);
+    const response = await patchTicketStatus(adminAgent, ticketId, TicketStatuses.IN_PROGRESS);
 
     expect(response.status).toBe(400);
     expect(response.body).toMatchObject({
@@ -171,21 +179,10 @@ describe('status machine integration', () => {
   });
 
   it('AC-5.10: Closed -> Cancelled fails via PATCH', async () => {
-    const { app, ticketId } = await createOpenTicket();
-    await moveTicketToClosed(app, ticketId);
+    const { ticketId } = await createOpenTicket();
+    await moveTicketToClosed(ticketId);
 
-    const response = await patchTicketStatus(app, ticketId, TicketStatuses.CANCELLED);
-
-    expect(response.status).toBe(400);
-    expect(response.body).toMatchObject({
-      success: false,
-      error: { code: ErrorCodes.INVALID_STATUS_TRANSITION },
-    });
-  });
-
-  it('AC-5.12: PUT rejects invalid status transitions', async () => {
-    const { app, ticketId } = await createOpenTicket();
-    const response = await putTicket(app, ticketId, { status: TicketStatuses.RESOLVED });
+    const response = await patchTicketStatus(adminAgent, ticketId, TicketStatuses.CANCELLED);
 
     expect(response.status).toBe(400);
     expect(response.body).toMatchObject({
@@ -194,14 +191,25 @@ describe('status machine integration', () => {
     });
   });
 
-  it('AC-5.12: PUT allows valid status transitions', async () => {
-    const { app, ticketId } = await createOpenTicket();
-    const response = await putTicket(app, ticketId, { status: TicketStatuses.IN_PROGRESS });
+  it('AC-5.12: PUT rejects status field in body', async () => {
+    const { ticketId } = await createOpenTicket();
+    const response = await putTicket(employeeAgent, ticketId, { status: TicketStatuses.RESOLVED });
+
+    expect(response.status).toBe(400);
+    expect(response.body).toMatchObject({
+      success: false,
+      error: { code: ErrorCodes.VALIDATION_ERROR },
+    });
+  });
+
+  it('AC-5.12: PUT allows valid field updates', async () => {
+    const { ticketId } = await createOpenTicket();
+    const response = await putTicket(employeeAgent, ticketId, { title: 'Updated badge access title' });
 
     expect(response.status).toBe(200);
     expect(response.body).toMatchObject({
       success: true,
-      data: { status: TicketStatuses.IN_PROGRESS },
+      data: { title: 'Updated badge access title' },
     });
   });
 });

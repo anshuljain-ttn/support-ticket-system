@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { ticketKeys } from '@/hooks/ticket-keys';
 import { ticketService } from '@/services/ticket.service';
-import type { TicketStatus, UpdateTicketInput } from '@/types/ticket.types';
+import type { AssignTicketInput, TicketStatus, UpdateTicketInput } from '@/types/ticket.types';
 
 export function useTicket(id: string) {
   return useQuery({
@@ -23,7 +23,7 @@ export function useUpdateTicket(id: string) {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ticketKeys.detail(id) }),
         queryClient.invalidateQueries({ queryKey: ticketKeys.lists() }),
-        queryClient.invalidateQueries({ queryKey: ticketKeys.stats() }),
+        queryClient.invalidateQueries({ queryKey: ticketKeys.dashboard() }),
       ]);
     },
   });
@@ -38,7 +38,22 @@ export function useUpdateTicketStatus(id: string) {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ticketKeys.detail(id) }),
         queryClient.invalidateQueries({ queryKey: ticketKeys.lists() }),
-        queryClient.invalidateQueries({ queryKey: ticketKeys.stats() }),
+        queryClient.invalidateQueries({ queryKey: ticketKeys.dashboard() }),
+      ]);
+    },
+  });
+}
+
+export function useAssignTicket(id: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (input: AssignTicketInput) => ticketService.assignTicket(id, input),
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ticketKeys.detail(id) }),
+        queryClient.invalidateQueries({ queryKey: ticketKeys.lists() }),
+        queryClient.invalidateQueries({ queryKey: ticketKeys.dashboard() }),
       ]);
     },
   });

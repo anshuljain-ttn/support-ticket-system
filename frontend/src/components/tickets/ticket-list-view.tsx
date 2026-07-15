@@ -18,6 +18,7 @@ import {
   parseTicketListSearchParams,
   serializeTicketListSearchParams,
 } from '@/lib/ticket-list-params';
+import { filterAssignableUsers } from '@/lib/users';
 import { ApiClientError } from '@/services/api-client';
 import type { TicketSearchParams } from '@/types/ticket.types';
 
@@ -33,6 +34,11 @@ export function TicketListView() {
 
   const ticketsQuery = useTickets(params);
   const usersQuery = useUsers();
+
+  const assignableUsers = useMemo(
+    () => filterAssignableUsers(usersQuery.data ?? []),
+    [usersQuery.data],
+  );
 
   const usersById = useMemo(
     () => buildUsersById(usersQuery.data ?? []),
@@ -70,7 +76,7 @@ export function TicketListView() {
       <div className="space-y-6">
         <TicketFilters
           params={params}
-          users={usersQuery.data ?? []}
+          users={assignableUsers}
           onApply={updateParams}
           onReset={resetParams}
         />

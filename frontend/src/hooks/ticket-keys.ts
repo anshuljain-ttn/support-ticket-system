@@ -8,6 +8,7 @@ export const ticketKeys = {
   details: () => [...ticketKeys.all, 'detail'] as const,
   detail: (id: string) => [...ticketKeys.details(), id] as const,
   stats: () => [...ticketKeys.all, 'stats'] as const,
+  dashboard: () => ['dashboard', 'stats'] as const,
 };
 
 function normalizeTicketParams(

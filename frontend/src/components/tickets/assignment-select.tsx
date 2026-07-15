@@ -2,7 +2,8 @@
 
 import { toast } from 'sonner';
 
-import { useUpdateTicket } from '@/hooks/use-ticket';
+import { useAssignTicket } from '@/hooks/use-ticket';
+import { filterAssignableUsers } from '@/lib/users';
 import { ApiClientError } from '@/services/api-client';
 import type { User } from '@/types/user.types';
 
@@ -13,10 +14,17 @@ type AssignmentSelectProps = {
   ticketId: string;
   assignedTo: string | null;
   users: User[];
+  disabled?: boolean;
 };
 
-export function AssignmentSelect({ ticketId, assignedTo, users }: AssignmentSelectProps) {
-  const updateTicket = useUpdateTicket(ticketId);
+export function AssignmentSelect({
+  ticketId,
+  assignedTo,
+  users,
+  disabled = false,
+}: AssignmentSelectProps) {
+  const assignTicket = useAssignTicket(ticketId);
+  const assignableUsers = filterAssignableUsers(users);
 
   const handleChange = async (value: string) => {
     const nextAssignee = value || null;
@@ -26,7 +34,7 @@ export function AssignmentSelect({ ticketId, assignedTo, users }: AssignmentSele
     }
 
     try {
-      await updateTicket.mutateAsync({ assignedTo: nextAssignee });
+      await assignTicket.mutateAsync({ assignedTo: nextAssignee });
       toast.success(nextAssignee ? 'Ticket assigned' : 'Ticket unassigned');
     } catch (error) {
       const message =
@@ -44,13 +52,13 @@ export function AssignmentSelect({ ticketId, assignedTo, users }: AssignmentSele
         id="ticket-assignee"
         className={selectClassName}
         value={assignedTo ?? ''}
-        disabled={updateTicket.isPending}
+        disabled={disabled || assignTicket.isPending}
         onChange={(event) => {
           void handleChange(event.target.value);
         }}
       >
         <option value="">Unassigned</option>
-        {users.map((user) => (
+        {assignableUsers.map((user) => (
           <option key={user._id} value={user._id}>
             {user.name} ({user.role})
           </option>

@@ -18,6 +18,7 @@ describe('ticket DTOs', () => {
       status: TicketStatuses.OPEN,
       assignedTo: null,
       createdBy: userId,
+      lastUpdatedBy: userId,
       createdAt: now,
       updatedAt: now,
     } as never);
@@ -30,6 +31,7 @@ describe('ticket DTOs', () => {
       status: TicketStatuses.OPEN,
       assignedTo: null,
       createdBy: userId.toString(),
+      lastUpdatedBy: userId.toString(),
       createdAt: now.toISOString(),
       updatedAt: now.toISOString(),
     });
@@ -50,6 +52,7 @@ describe('ticket DTOs', () => {
           status: TicketStatuses.IN_PROGRESS,
           assignedTo: userId,
           createdBy: userId,
+          lastUpdatedBy: userId,
           createdAt: now,
           updatedAt: now,
         } as never,

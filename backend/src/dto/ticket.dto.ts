@@ -10,6 +10,7 @@ export function toTicketDto(ticket: TicketDocument): TicketRecord {
     status: ticket.status,
     assignedTo: ticket.assignedTo ? ticket.assignedTo.toString() : null,
     createdBy: ticket.createdBy.toString(),
+    lastUpdatedBy: ticket.lastUpdatedBy ? ticket.lastUpdatedBy.toString() : null,
     createdAt: ticket.createdAt.toISOString(),
     updatedAt: ticket.updatedAt.toISOString(),
   };

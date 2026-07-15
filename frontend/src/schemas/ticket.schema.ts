@@ -7,11 +7,6 @@ const ticketPriorityValues = Object.values(TicketPriorities) as [
   ...TicketPriority[],
 ];
 
-export const objectIdSchema = z
-  .string()
-  .trim()
-  .regex(/^[a-fA-F0-9]{24}$/, 'Select a valid user');
-
 export const createTicketFormSchema = z.object({
   title: z.string().trim().min(3, 'Title must be at least 3 characters').max(200),
   description: z
@@ -20,11 +15,6 @@ export const createTicketFormSchema = z.object({
     .min(10, 'Description must be at least 10 characters')
     .max(5000),
   priority: z.enum(ticketPriorityValues),
-  createdBy: objectIdSchema,
-  assignedTo: z
-    .union([objectIdSchema, z.literal('')])
-    .optional()
-    .transform((value) => (value === '' ? undefined : value)),
 });
 
 export const updateTicketFormSchema = z.object({

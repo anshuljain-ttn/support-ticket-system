@@ -469,3 +469,185 @@ B13 + C12 → D1 → D2 → D3
 ```
 
 **Parallelization:** Backend (Phase B) and Frontend (Phase C) can proceed in parallel after scaffolding (Phase A), once B9+ API is ready for frontend integration testing.
+
+---
+
+# v2.0 — Authentication, RBAC, Audit & SaaS UI
+
+> **Approach:** Same as v1 — one task at a time, verify after each, update workflow docs, suggest commit message.
+
+## Phase E — Backend Auth Foundation
+
+### Task E1: Workflow Documentation Refresh
+**Status:** Complete  
+**Scope:** Update `spec.md`, `project-context.md`, `acceptance-criteria.md`, `tasks.md`, `cursor-rules-or-instructions.md` for v2.0  
+**Commit:** `docs: refresh workflow for v2 auth and rbac`
+
+### Task E2: User Model, Roles & Seed Users
+**Status:** Complete  
+**Scope:**
+- `constants/roles.ts` — SUPER_ADMIN, ADMIN, EMPLOYEE
+- User model: password, avatar, isActive, createdAt
+- bcrypt password hashing in seed
+- JWT/cookie env vars in `config/env.ts`
+- `utils/password.ts` — hash/compare helpers
+- Seed 1 super admin, 2 admins, 3 employees
+- Update user DTO (never expose password)
+- Update tests helpers for new roles
+
+**Verify:** Seed runs, typecheck passes, user tests updated  
+**Commit:** `feat(backend): add v2 user model roles and bcrypt seed`
+
+### Task E3: Auth Service & Routes
+**Status:** Complete  
+**Scope:**
+- `services/auth.service.ts`
+- `controllers/auth.controller.ts`, `routes/auth.routes.ts`
+- `POST /auth/login`, `POST /auth/logout`, `GET /auth/me`
+- HTTP-only JWT cookie via `cookie-parser`
+- Auth validators
+
+**Verify:** Login/logout/me integration tests  
+**Commit:** `feat(backend): add jwt authentication endpoints`
+
+### Task E4: Auth Middleware
+**Status:** Complete  
+**Scope:**
+- `middleware/auth.middleware.ts` — JWT from cookie
+- Attach `req.user` (authenticated user DTO)
+- 401 for missing/invalid token
+
+**Verify:** Protected route returns 401 without auth  
+**Commit:** `feat(backend): add authentication middleware`
+
+### Task E5: Permission Service & Authorization Middleware
+**Status:** Complete  
+**Scope:**
+- `services/permission.service.ts` — centralized RBAC
+- `constants/permissions.ts` — action constants
+- `middleware/authorize.middleware.ts` — factory `authorize(action)`
+- `utils/ownership.ts` — isOwner helpers
+
+**Verify:** Unit tests for permission matrix  
+**Commit:** `feat(backend): add permission service and authorization middleware`
+
+---
+
+## Phase F — Ticket Audit & RBAC Integration
+
+### Task F1: Ticket History Schema & Audit Service
+**Status:** Complete  
+**Scope:**
+- Ticket model: `history[]`, `lastUpdatedBy`
+- `services/audit.service.ts`
+- History entry types and DTOs
+
+**Commit:** `feat(backend): add ticket audit history schema and service`
+
+### Task F2: Refactor Ticket Service with RBAC
+**Status:** Complete  
+**Scope:**
+- Scoped list/search/detail
+- Ownership rules on update/status/assign
+- Audit entries on mutations
+- Remove `createdBy` from request body (use auth user)
+
+**Commit:** `feat(backend): enforce rbac and ownership on tickets`
+
+### Task F3: Assign Endpoint & Dashboard Stats API
+**Status:** Complete  
+**Scope:**
+- `PATCH /tickets/:id/assign`
+- Role-aware dashboard stats endpoints
+
+**Commit:** `feat(backend): add assign endpoint and dashboard stats`
+
+---
+
+## Phase G — Backend Tests (v2)
+
+### Task G1: Authentication Tests
+**Status:** Complete  
+**Commit:** `test(backend): add authentication integration tests`
+
+### Task G2: Authorization & Ownership Tests
+**Status:** Complete  
+**Commit:** `test(backend): add rbac and ownership tests`
+
+### Task G3: Workflow & Audit Tests
+**Status:** Complete  
+**Commit:** `test(backend): add workflow and audit tests`
+
+---
+
+## Phase H — Swagger (v2)
+
+### Task H1: Update OpenAPI for Auth & RBAC
+**Status:** Complete  
+**Commit:** `docs(backend): update swagger for v2 endpoints`
+
+---
+
+## Phase I — Frontend Auth
+
+### Task I1: Auth API Client & Session
+**Status:** Complete  
+**Scope:** Cookie credentials, auth service, auth context/provider
+
+**Commit:** `feat(frontend): add auth client and session provider`
+
+### Task I2: Login Page & Route Protection
+**Status:** Complete  
+**Scope:** `/login`, middleware or layout guards, redirect logic
+
+**Commit:** `feat(frontend): add login page and protected routes`
+
+---
+
+## Phase J — Frontend SaaS UI Redesign
+
+### Task J1: Design System & Shell (Dark Mode, Sidebar, Navbar)
+**Status:** Complete  
+**Commit:** `feat(frontend): redesign app shell with dark mode`
+
+### Task J2: Role-Aware Dashboard
+**Status:** Complete  
+**Commit:** `feat(frontend): add role-aware dashboard`
+
+### Task J3: Role-Aware Ticket List & Filters
+**Status:** Complete  
+**Commit:** `feat(frontend): add scoped ticket list`
+
+### Task J4: Ticket Detail (Audit Timeline, Permission-Gated Actions)
+**Status:** Complete  
+**Commit:** `feat(frontend): redesign ticket detail with audit timeline`
+
+### Task J5: Create/Edit Ticket & Profile/Settings Pages
+**Status:** Complete  
+**Commit:** `feat(frontend): update ticket forms and profile pages`
+
+---
+
+## Phase K — Integration & Docs (v2)
+
+### Task K1: Docker & Environment Updates
+**Status:** Complete  
+**Commit:** `chore: update docker for v2 auth env vars`
+
+### Task K2: README & Final Verification
+**Status:** Complete  
+**Commit:** `docs: update readme for v2 and final verification`
+
+---
+
+## v2 Task Dependency Graph
+
+```
+E1 → E2 → E3 → E4 → E5
+E5 → F1 → F2 → F3
+F3 → G1 → G2 → G3
+G3 → H1
+E4 + H1 → I1 → I2
+I2 → J1 → J2 → J3 → J4 → J5
+J5 + G3 → K1 → K2
+```

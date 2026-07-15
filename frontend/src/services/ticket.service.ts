@@ -1,17 +1,16 @@
 import { apiClient, unwrapApiResponse } from '@/services/api-client';
 import type { ApiResponse } from '@/types/api.types';
 import type {
+  AssignTicketInput,
   CreateTicketInput,
   PaginatedTickets,
   Ticket,
   TicketDetail,
   TicketListParams,
   TicketSearchParams,
-  TicketStats,
   TicketStatus,
   UpdateTicketInput,
 } from '@/types/ticket.types';
-import { ALL_TICKET_STATUSES } from '@/lib/status-transitions';
 
 function serializeQueryParams(params: Record<string, unknown>): string {
   const searchParams = new URLSearchParams();
@@ -77,27 +76,9 @@ export async function updateTicketStatus(id: string, status: TicketStatus): Prom
   return unwrapApiResponse(response.data);
 }
 
-export async function getTicketStats(): Promise<TicketStats> {
-  const stats = ALL_TICKET_STATUSES.reduce((acc, status) => {
-    acc[status] = 0;
-    return acc;
-  }, {} as TicketStats);
-
-  let page = 1;
-  let totalPages = 1;
-
-  while (page <= totalPages) {
-    const result = await listTickets({ page, limit: 100 });
-
-    for (const ticket of result.items) {
-      stats[ticket.status] += 1;
-    }
-
-    totalPages = result.pagination.totalPages;
-    page += 1;
-  }
-
-  return stats;
+export async function assignTicket(id: string, input: AssignTicketInput): Promise<Ticket> {
+  const response = await apiClient.patch<ApiResponse<Ticket>>(`/tickets/${id}/assign`, input);
+  return unwrapApiResponse(response.data);
 }
 
 export const ticketService = {
@@ -107,5 +88,5 @@ export const ticketService = {
   createTicket,
   updateTicket,
   updateTicketStatus,
-  getTicketStats,
+  assignTicket,
 };

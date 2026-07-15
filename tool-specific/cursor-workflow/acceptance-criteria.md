@@ -262,3 +262,64 @@ A task is **done** when:
 6. ✅ Git commit message suggested
 
 The project is **done** when all AC-1 through AC-18 criteria are met.
+
+---
+
+# v2.0 Acceptance Criteria
+
+## AC-19: Authentication
+
+| ID | Criterion | Verification |
+|----|-----------|--------------|
+| AC-19.1 | `POST /auth/login` returns 200 and sets HTTP-only cookie on valid credentials | Integration test |
+| AC-19.2 | Invalid credentials return 401 `INVALID_CREDENTIALS` | Integration test |
+| AC-19.3 | `GET /auth/me` returns authenticated user without password | Integration test |
+| AC-19.4 | `POST /auth/logout` clears cookie | Integration test |
+| AC-19.5 | Protected routes return 401 without auth | Integration test |
+| AC-19.6 | Inactive user login returns 403 | Integration test |
+| AC-19.7 | Passwords stored as bcrypt hashes only | DB inspection |
+
+## AC-20: RBAC & Ownership
+
+| ID | Criterion | Verification |
+|----|-----------|--------------|
+| AC-20.1 | Employee can create ticket | Integration test |
+| AC-20.2 | Employee cannot resolve ticket | Integration test → 403 |
+| AC-20.3 | Employee cannot edit ticket after Open | Integration test → 403 |
+| AC-20.4 | Employee cannot access another employee's ticket | Integration test → 403/404 |
+| AC-20.5 | Admin cannot transition own ticket (workflow) | Integration test → 403 |
+| AC-20.6 | Admin can transition employee ticket | Integration test → 200 |
+| AC-20.7 | Super Admin can perform every action | Integration test |
+| AC-20.8 | Permission logic centralized in PermissionService | Code review |
+| AC-20.9 | Forbidden returns 403 with envelope | Integration test |
+
+## AC-21: Audit History
+
+| ID | Criterion | Verification |
+|----|-----------|--------------|
+| AC-21.1 | Status change creates history entry | Integration test |
+| AC-21.2 | Assignment creates history entry | Integration test |
+| AC-21.3 | History includes action, performedBy, performedAt, previous/new values | Schema test |
+| AC-21.4 | Ticket detail returns history array | Integration test |
+
+## AC-22: Seeded Users (v2)
+
+| ID | Criterion | Verification |
+|----|-----------|--------------|
+| AC-22.1 | Seed creates 1 SUPER_ADMIN, 2 ADMIN, 3 EMPLOYEE | Seed + DB query |
+| AC-22.2 | Each user has name, email, role, avatar, isActive, createdAt | Schema validation |
+| AC-22.3 | Password field hashed; never in API responses | DTO + API test |
+
+## AC-23: Frontend Auth & UI (v2)
+
+| ID | Criterion | Verification |
+|----|-----------|--------------|
+| AC-23.1 | Login page at `/login` | Manual / E2E |
+| AC-23.2 | Unauthenticated users redirected to login | Manual |
+| AC-23.3 | Unauthorized actions hidden in UI | Manual |
+| AC-23.4 | Dark mode toggle works | Manual |
+| AC-23.5 | Role-aware dashboard displays correct stats | Manual |
+
+## v2 Definition of Done
+
+v2 is **done** when AC-19 through AC-23 are met in addition to retained AC-1 through AC-18 (updated where superseded).

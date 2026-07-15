@@ -1,6 +1,6 @@
 import mongoose, { Schema, type HydratedDocument, type InferSchemaType, type Model } from 'mongoose';
 
-import { UserRoles } from '@/types/user.types.js';
+import { ALL_ROLES } from '@/constants/roles.js';
 
 const userSchema = new Schema(
   {
@@ -18,14 +18,29 @@ const userSchema = new Schema(
       trim: true,
       lowercase: true,
     },
+    password: {
+      type: String,
+      required: true,
+      select: false,
+    },
     role: {
       type: String,
       required: true,
-      enum: Object.values(UserRoles),
+      enum: ALL_ROLES,
+    },
+    avatar: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    isActive: {
+      type: Boolean,
+      required: true,
+      default: true,
     },
   },
   {
-    timestamps: false,
+    timestamps: { createdAt: true, updatedAt: false },
     versionKey: false,
   },
 );

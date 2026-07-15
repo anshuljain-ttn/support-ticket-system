@@ -1,15 +1,17 @@
-export const UserRoles = {
-  EMPLOYEE: 'employee',
-  ADMIN: 'admin',
-} as const;
+import { Roles, type Role } from '@/constants/roles.js';
 
-export type UserRole = (typeof UserRoles)[keyof typeof UserRoles];
+export const UserRoles = Roles;
+
+export type UserRole = Role;
 
 export type UserRecord = {
   _id: string;
   name: string;
   email: string;
   role: UserRole;
+  avatar: string;
+  isActive: boolean;
+  createdAt: string;
 };
 
 export type SeedUser = {
@@ -17,3 +19,5 @@ export type SeedUser = {
   email: string;
   role: UserRole;
 };
+
+export type AuthenticatedUser = UserRecord;

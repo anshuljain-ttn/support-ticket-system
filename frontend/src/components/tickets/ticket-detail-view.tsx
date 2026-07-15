@@ -8,8 +8,8 @@ import { CommentTimeline } from '@/components/comments/comment-timeline';
 import { ErrorState } from '@/components/common/error-state';
 import { TicketDetailSkeleton } from '@/components/common/loading-skeleton';
 import { PageContainer } from '@/components/layout/page-container';
-import { ActivityTimeline } from '@/components/tickets/activity-timeline';
 import { AssignmentSelect } from '@/components/tickets/assignment-select';
+import { HistoryTimeline } from '@/components/tickets/history-timeline';
 import { buildUsersById } from '@/components/tickets/ticket-table';
 import { PriorityBadge } from '@/components/tickets/priority-badge';
 import { StatusBadge } from '@/components/tickets/status-badge';
@@ -17,7 +17,6 @@ import { StatusSelect } from '@/components/tickets/status-select';
 import { Button } from '@/components/ui/button';
 import { useTicket } from '@/hooks/use-ticket';
 import { useUsers } from '@/hooks/use-users';
-import { buildActivityEvents } from '@/lib/activity-timeline';
 import { formatDateTime } from '@/lib/format';
 import { isValidObjectId } from '@/lib/object-id';
 import { ApiClientError } from '@/services/api-client';
@@ -34,14 +33,6 @@ export function TicketDetailView({ ticketId }: TicketDetailViewProps) {
     () => buildUsersById(usersQuery.data ?? []),
     [usersQuery.data],
   );
-
-  const activityEvents = useMemo(() => {
-    if (!ticketQuery.data) {
-      return [];
-    }
-
-    return buildActivityEvents(ticketQuery.data.ticket, ticketQuery.data.comments);
-  }, [ticketQuery.data]);
 
   if (!isValidObjectId(ticketId)) {
     return (
@@ -98,21 +89,25 @@ export function TicketDetailView({ ticketId }: TicketDetailViewProps) {
     return null;
   }
 
-  const { ticket, comments, allowedTransitions } = ticketQuery.data;
+  const { ticket, comments, history, allowedTransitions, permissions } = ticketQuery.data;
+  const hasActions =
+    permissions.canEdit || permissions.canAssign || permissions.canChangeStatus;
 
   return (
     <PageContainer
       title={ticket.title}
       description={`Ticket #${ticket._id.slice(-6).toUpperCase()}`}
       actions={
-        <Button render={<Link href={`/tickets/${ticket._id}/edit`} />} nativeButton={false}>
-          Edit ticket
-        </Button>
+        permissions.canEdit ? (
+          <Button render={<Link href={`/tickets/${ticket._id}/edit`} />} nativeButton={false}>
+            Edit ticket
+          </Button>
+        ) : null
       }
     >
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
         <div className="space-y-6">
-          <section className="space-y-4 rounded-xl border border-border bg-card p-6">
+          <section className="space-y-4 rounded-xl border border-border/60 bg-card/70 p-6 backdrop-blur-sm">
             <div className="flex flex-wrap items-center gap-2">
               <StatusBadge status={ticket.status} />
               <PriorityBadge priority={ticket.priority} />
@@ -153,29 +148,35 @@ export function TicketDetailView({ ticketId }: TicketDetailViewProps) {
 
           <section className="space-y-4">
             <h3 className="text-lg font-semibold">Comments</h3>
-            <CommentForm ticketId={ticket._id} users={usersQuery.data ?? []} />
+            {permissions.canComment ? <CommentForm ticketId={ticket._id} /> : null}
             <CommentTimeline comments={comments} usersById={usersById} />
           </section>
         </div>
 
         <aside className="space-y-6">
-          <section className="space-y-4 rounded-xl border border-border bg-card p-4">
-            <h3 className="text-sm font-semibold">Actions</h3>
-            <StatusSelect
-              ticketId={ticket._id}
-              currentStatus={ticket.status}
-              allowedTransitions={allowedTransitions}
-            />
-            <AssignmentSelect
-              ticketId={ticket._id}
-              assignedTo={ticket.assignedTo}
-              users={usersQuery.data ?? []}
-            />
-          </section>
+          {hasActions ? (
+            <section className="space-y-4 rounded-xl border border-border/60 bg-card/70 p-4 backdrop-blur-sm">
+              <h3 className="text-sm font-semibold">Actions</h3>
+              {permissions.canChangeStatus ? (
+                <StatusSelect
+                  ticketId={ticket._id}
+                  currentStatus={ticket.status}
+                  allowedTransitions={allowedTransitions}
+                />
+              ) : null}
+              {permissions.canAssign ? (
+                <AssignmentSelect
+                  ticketId={ticket._id}
+                  assignedTo={ticket.assignedTo}
+                  users={usersQuery.data ?? []}
+                />
+              ) : null}
+            </section>
+          ) : null}
 
           <section className="space-y-4">
-            <h3 className="text-lg font-semibold">Activity</h3>
-            <ActivityTimeline events={activityEvents} usersById={usersById} />
+            <h3 className="text-lg font-semibold">History</h3>
+            <HistoryTimeline history={history} usersById={usersById} />
           </section>
         </aside>
       </div>

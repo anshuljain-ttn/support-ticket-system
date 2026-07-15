@@ -17,6 +17,17 @@ const envSchema = z.object({
   MONGODB_URI: mongoUriSchema,
   CORS_ORIGIN: z.string().url('CORS_ORIGIN must be a valid URL'),
   LOG_LEVEL: z.enum(['error', 'warn', 'info', 'debug']).default('info'),
+  JWT_SECRET: z.string().min(32, 'JWT_SECRET must be at least 32 characters'),
+  JWT_EXPIRES_IN: z.string().default('7d'),
+  AUTH_COOKIE_NAME: z.string().default('sts_token'),
+  COOKIE_SECURE: z
+    .enum(['true', 'false'])
+    .default('false')
+    .transform((value) => value === 'true'),
+  SEED_DEFAULT_PASSWORD: z
+    .string()
+    .min(8, 'SEED_DEFAULT_PASSWORD must be at least 8 characters')
+    .default('Password123!'),
 });
 
 const parsed = envSchema.safeParse(process.env);

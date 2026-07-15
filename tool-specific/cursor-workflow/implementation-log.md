@@ -284,9 +284,74 @@
 
 ---
 
+## v2.0 — Auth, RBAC, Audit & SaaS UI
+
+### Decision D18: v2.0 Major Refactor
+- **Decision:** Add JWT auth, RBAC, ownership rules, embedded audit history, and SaaS UI redesign.
+- **Rationale:** Evolved requirements for production-quality security and maintainability.
+- **Impact:** Supersedes v1 no-auth model; `createdBy` will come from JWT in later tasks.
+
+### Decision D19: Role Values
+- **Decision:** Use `SUPER_ADMIN`, `ADMIN`, `EMPLOYEE` as stored role enum values.
+- **Rationale:** Aligns with spec; distinct from v1 lowercase roles.
+
+### Decision D20: Password & JWT Config
+- **Decision:** bcrypt (12 rounds); JWT in HTTP-only cookie (implemented in E3); env-validated secrets.
+- **Rationale:** Industry standard; fail-fast on missing `JWT_SECRET`.
+
+### Task E1 — Workflow Documentation Refresh (2026-07-15)
+- Rewrote `spec.md` v2.0.0 with auth, RBAC, ownership, audit, and UI requirements.
+- Added v2 phases E–K to `tasks.md`; appended AC-19–AC-23 to `acceptance-criteria.md`.
+- Updated `project-context.md` and `cursor-rules-or-instructions.md` for auth/RBAC rules.
+
+### Task E2 — User Model, Roles & Seed Users (2026-07-15)
+- Added `constants/roles.ts`, `utils/password.ts`, `utils/avatar.ts`.
+- Extended user model: `password` (select:false), `avatar`, `isActive`, `createdAt`.
+- Seed: 1 SUPER_ADMIN, 2 ADMIN, 3 EMPLOYEE with bcrypt-hashed `SEED_DEFAULT_PASSWORD`.
+- Added JWT/cookie env vars to `config/env.ts` and `.env.example`.
+- Traces to **AC-22.1–AC-22.3**.
+
+### Tasks E3–E5 — Auth, Middleware & Permission Service (2026-07-15)
+- `auth.service.ts`, `POST /auth/login`, `POST /auth/logout`, `GET /auth/me`.
+- HTTP-only JWT cookie via `cookie-parser`; CORS `credentials: true`.
+- `permission.service.ts` centralizes RBAC + ownership; `authenticate` middleware.
+- Traces to **AC-19**, **AC-20.8**.
+
+### Tasks F1–F3 — Audit History, RBAC Tickets, Dashboard (2026-07-15)
+- Ticket model: `history[]`, `lastUpdatedBy`; `audit.service.ts`.
+- Ticket/comment services use auth user (no `createdBy` in body).
+- `PATCH /tickets/:id/assign`; `GET /dashboard/stats` role-aware.
+- Scoped list/search; ticket detail returns `permissions` flags for frontend UX.
+- Fixed route mounting: protected routes under `/tickets` prefix only.
+- Traces to **AC-21**, **AC-20**, **AC-23.5**.
+
+### Tasks G1–G3 — Backend Tests v2 (2026-07-15)
+- Added `auth.test.ts`, `permissions.test.ts`, `permission.service.test.ts`.
+- Updated all integration tests for cookie auth. **137 tests passing**.
+
+### Task H1 — Swagger v2 (2026-07-15)
+- Added Auth tag and login/logout/me OpenAPI paths; updated User schema.
+
+### Tasks I1–I2 — Frontend Auth (2026-07-15)
+- `auth.service.ts`, `AuthProvider`, login page, Next.js middleware, `withCredentials`.
+
+### Tasks J1–J5 — Frontend SaaS UI (2026-07-15)
+- Theme provider (dark mode), redesigned shell, role-aware dashboard.
+- Permission-gated ticket actions; audit history timeline; profile/settings pages.
+- Route group `(app)` for protected pages.
+
+### Tasks K1–K2 — Docker & README v2 (2026-07-15)
+- Docker compose includes `JWT_SECRET`, `SEED_DEFAULT_PASSWORD`.
+- README rewritten for auth, RBAC, ownership, seed users, testing.
+
+---
+
 ### Architecture Changes
 
-*None yet — initial architecture established.*
+#### v2.0 (2026-07-15)
+- Introduced authentication layer (JWT + bcrypt) and three-tier RBAC.
+- PermissionService and audit `history[]` planned for Phase F.
+- v1 derived activity timeline will be replaced by embedded audit history.
 
 ---
 

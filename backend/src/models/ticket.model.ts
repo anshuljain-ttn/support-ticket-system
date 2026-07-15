@@ -1,6 +1,43 @@
 import mongoose, { Schema, type HydratedDocument, type InferSchemaType, type Model } from 'mongoose';
 
+import { HistoryActions } from '@/constants/permissions.js';
 import { TicketPriorities, TicketStatuses } from '@/types/ticket.types.js';
+
+const historyEntrySchema = new Schema(
+  {
+    action: {
+      type: String,
+      required: true,
+      enum: Object.values(HistoryActions),
+    },
+    performedBy: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+    performedAt: {
+      type: Date,
+      required: true,
+      default: Date.now,
+    },
+    previousValue: {
+      type: Schema.Types.Mixed,
+      default: null,
+    },
+    newValue: {
+      type: Schema.Types.Mixed,
+      default: null,
+    },
+    comment: {
+      type: String,
+      trim: true,
+    },
+  },
+  {
+    _id: true,
+    versionKey: false,
+  },
+);
 
 const ticketSchema = new Schema(
   {
@@ -38,6 +75,15 @@ const ticketSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: true,
+    },
+    lastUpdatedBy: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      default: null,
+    },
+    history: {
+      type: [historyEntrySchema],
+      default: [],
     },
   },
   {

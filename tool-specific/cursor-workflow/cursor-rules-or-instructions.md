@@ -101,9 +101,19 @@
   ```typescript
   throw new AppError('TICKET_NOT_FOUND', 'Ticket not found', 404);
   ```
-- Never catch errors in controllers (middleware handles them).
-- Never expose stack traces in API responses.
-- Log errors with context (request path, method) in error middleware.
+- **Never catch errors in controllers** (middleware handles them).
+- **Never expose stack traces** in API responses.
+- **Log errors** with context (request path, method) in error middleware.
+
+### v2 — Authentication & Authorization
+
+- **JWT in HTTP-only cookies** — never store tokens in localStorage.
+- **bcrypt** for password hashing (cost factor ≥ 10).
+- **PermissionService is the single source of truth** for authorization rules.
+- **Controllers never contain permission logic** — use `authenticate` + `authorize(action)` middleware.
+- **Ownership checks** via PermissionService or ownership helpers, not inline in controllers.
+- **Frontend mirrors permissions for UX only** — call `canPerform(action)` helpers derived from API flags or shared types; never reimplement full RBAC matrix.
+- **Never return password** in any API response or DTO.
 
 ---
 

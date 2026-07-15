@@ -86,7 +86,18 @@ export function EditTicketView({ ticketId }: EditTicketViewProps) {
     return null;
   }
 
-  const { ticket } = ticketQuery.data;
+  const { ticket, permissions } = ticketQuery.data;
+
+  if (!permissions.canEdit) {
+    return (
+      <PageContainer title="Edit Ticket" description="You do not have permission to edit this ticket.">
+        <ErrorState
+          title="Access denied"
+          message="You do not have permission to edit this ticket."
+        />
+      </PageContainer>
+    );
+  }
 
   return (
     <PageContainer
@@ -104,7 +115,6 @@ export function EditTicketView({ ticketId }: EditTicketViewProps) {
     >
       <TicketForm
         mode="edit"
-        users={[]}
         defaultValues={{
           title: ticket.title,
           description: ticket.description,

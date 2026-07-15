@@ -37,6 +37,7 @@ export const swaggerSpec = swaggerJsdoc({
       },
     ],
     tags: [
+      { name: 'Auth', description: 'Authentication' },
       { name: 'Health', description: 'Service health' },
       { name: 'Users', description: 'Seeded user directory' },
       { name: 'Tickets', description: 'Ticket CRUD, search, and status workflow' },
@@ -67,6 +68,10 @@ export const swaggerSpec = swaggerJsdoc({
                 'TICKET_NOT_FOUND',
                 'NOT_FOUND',
                 'INTERNAL_ERROR',
+                'UNAUTHORIZED',
+                'FORBIDDEN',
+                'INVALID_CREDENTIALS',
+                'USER_INACTIVE',
               ],
             },
             message: { type: 'string', example: 'Validation failed' },
@@ -95,12 +100,15 @@ export const swaggerSpec = swaggerJsdoc({
         },
         User: {
           type: 'object',
-          required: ['_id', 'name', 'email', 'role'],
+          required: ['_id', 'name', 'email', 'role', 'avatar', 'isActive', 'createdAt'],
           properties: {
             _id: { type: 'string', example: '507f1f77bcf86cd799439011' },
             name: { type: 'string', example: 'Alice Johnson' },
             email: { type: 'string', format: 'email', example: 'alice@company.com' },
-            role: { type: 'string', enum: ['employee', 'admin'] },
+            role: { type: 'string', enum: ['SUPER_ADMIN', 'ADMIN', 'EMPLOYEE'] },
+            avatar: { type: 'string', example: 'https://api.dicebear.com/9.x/initials/svg?seed=Alice' },
+            isActive: { type: 'boolean', example: true },
+            createdAt: { type: 'string', format: 'date-time' },
           },
         },
         Ticket: {

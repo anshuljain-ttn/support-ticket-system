@@ -1,9 +1,8 @@
 import { Types } from 'mongoose';
-import request from 'supertest';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 import { ErrorCodes } from '@/constants/error-codes.js';
-import { createTestApp, createTicketViaApi } from '../helpers/test-app.js';
+import { createTestApp, createTicketViaApi, loginViaApi } from '../helpers/test-app.js';
 import {
   clearTestDatabase,
   seedTestUsers,
@@ -35,15 +34,15 @@ describe('comments REST API', () => {
 
   it('POST /tickets/:id/comments creates a comment', async () => {
     const app = createTestApp();
-    const ticketId = await createTicketViaApi(app, users.employeeId, {
+    const employeeAgent = await loginViaApi(app, users.employeeEmail);
+    const ticketId = await createTicketViaApi(employeeAgent, {
       title: 'Printer issue',
       description: 'Office printer is not responding to jobs.',
       priority: TicketPriorities.MEDIUM,
     });
 
-    const response = await request(app).post(`/tickets/${ticketId}/comments`).send({
+    const response = await employeeAgent.post(`/tickets/${ticketId}/comments`).send({
       message: 'Checked the printer queue.',
-      createdBy: users.employeeId,
     });
 
     expect(response.status).toBe(201);
@@ -60,19 +59,18 @@ describe('comments REST API', () => {
 
   it('comments appear in ticket detail sorted by createdAt asc', async () => {
     const app = createTestApp();
-    const ticketId = await createTicketViaApi(app, users.employeeId);
+    const employeeAgent = await loginViaApi(app, users.employeeEmail);
+    const ticketId = await createTicketViaApi(employeeAgent);
 
-    await request(app).post(`/tickets/${ticketId}/comments`).send({
+    await employeeAgent.post(`/tickets/${ticketId}/comments`).send({
       message: 'First comment',
-      createdBy: users.employeeId,
     });
 
-    await request(app).post(`/tickets/${ticketId}/comments`).send({
+    await employeeAgent.post(`/tickets/${ticketId}/comments`).send({
       message: 'Second comment',
-      createdBy: users.employeeId,
     });
 
-    const response = await request(app).get(`/tickets/${ticketId}`);
+    const response = await employeeAgent.get(`/tickets/${ticketId}`);
 
     expect(response.status).toBe(200);
     const comments = (response.body as { data: { comments: { message: string }[] } }).data
@@ -84,11 +82,11 @@ describe('comments REST API', () => {
 
   it('POST /tickets/:id/comments returns 404 for non-existent ticket', async () => {
     const app = createTestApp();
+    const employeeAgent = await loginViaApi(app, users.employeeEmail);
     const missingId = new Types.ObjectId().toString();
 
-    const response = await request(app).post(`/tickets/${missingId}/comments`).send({
+    const response = await employeeAgent.post(`/tickets/${missingId}/comments`).send({
       message: 'This should fail.',
-      createdBy: users.employeeId,
     });
 
     expect(response.status).toBe(404);
@@ -102,11 +100,11 @@ describe('comments REST API', () => {
 
   it('POST /tickets/:id/comments returns 400 for empty message', async () => {
     const app = createTestApp();
-    const ticketId = await createTicketViaApi(app, users.employeeId);
+    const employeeAgent = await loginViaApi(app, users.employeeEmail);
+    const ticketId = await createTicketViaApi(employeeAgent);
 
-    const response = await request(app).post(`/tickets/${ticketId}/comments`).send({
+    const response = await employeeAgent.post(`/tickets/${ticketId}/comments`).send({
       message: '   ',
-      createdBy: users.employeeId,
     });
 
     expect(response.status).toBe(400);

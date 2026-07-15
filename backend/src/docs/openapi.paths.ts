@@ -1,5 +1,52 @@
 /**
  * @openapi
+ * /auth/login:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Login
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email, password]
+ *             properties:
+ *               email: { type: string, format: email }
+ *               password: { type: string }
+ *     responses:
+ *       200:
+ *         description: Login successful; sets HTTP-only auth cookie
+ *       401:
+ *         description: Invalid credentials
+ */
+
+/**
+ * @openapi
+ * /auth/logout:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Logout
+ *     security: [{ cookieAuth: [] }]
+ *     responses:
+ *       200:
+ *         description: Logged out
+ */
+
+/**
+ * @openapi
+ * /auth/me:
+ *   get:
+ *     tags: [Auth]
+ *     summary: Current authenticated user
+ *     security: [{ cookieAuth: [] }]
+ *     responses:
+ *       200:
+ *         description: User profile
+ */
+
+/**
+ * @openapi
  * /health:
  *   get:
  *     tags: [Health]

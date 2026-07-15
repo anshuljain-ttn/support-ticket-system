@@ -11,29 +11,16 @@ import {
 } from '@/components/common/loading-skeleton';
 import { PageContainer } from '@/components/layout/page-container';
 import { Button } from '@/components/ui/button';
-import { useTickets } from '@/hooks/use-tickets';
-import { useTicketStats } from '@/hooks/use-ticket-stats';
+import { useDashboardStats } from '@/hooks/use-ticket-stats';
 import { ApiClientError } from '@/services/api-client';
 
-const RECENT_TICKETS_LIMIT = 5;
-
 export function DashboardView() {
-  const statsQuery = useTicketStats();
-  const ticketsQuery = useTickets({
-    page: 1,
-    limit: RECENT_TICKETS_LIMIT,
-    sort: 'newest',
-  });
+  const dashboardQuery = useDashboardStats();
 
-  const statsErrorMessage =
-    statsQuery.error instanceof ApiClientError
-      ? statsQuery.error.message
+  const errorMessage =
+    dashboardQuery.error instanceof ApiClientError
+      ? dashboardQuery.error.message
       : 'Unable to load dashboard statistics.';
-
-  const ticketsErrorMessage =
-    ticketsQuery.error instanceof ApiClientError
-      ? ticketsQuery.error.message
-      : 'Unable to load recent tickets.';
 
   return (
     <PageContainer
@@ -47,17 +34,17 @@ export function DashboardView() {
     >
       <div className="space-y-8">
         <section className="space-y-4">
-          <h2 className="text-lg font-semibold">Statistics by status</h2>
-          {statsQuery.isLoading ? <StatsCardsSkeleton /> : null}
-          {statsQuery.isError ? (
+          <h2 className="text-lg font-semibold">Statistics</h2>
+          {dashboardQuery.isLoading ? <StatsCardsSkeleton /> : null}
+          {dashboardQuery.isError ? (
             <ErrorState
-              message={statsErrorMessage}
+              message={errorMessage}
               onRetry={() => {
-                void statsQuery.refetch();
+                void dashboardQuery.refetch();
               }}
             />
           ) : null}
-          {statsQuery.data ? <StatsCards stats={statsQuery.data} /> : null}
+          {dashboardQuery.data ? <StatsCards dashboard={dashboardQuery.data} /> : null}
         </section>
 
         <section className="space-y-4">
@@ -71,17 +58,10 @@ export function DashboardView() {
             </Link>
           </div>
 
-          {ticketsQuery.isLoading ? <TicketTableSkeleton rows={RECENT_TICKETS_LIMIT} /> : null}
-          {ticketsQuery.isError ? (
-            <ErrorState
-              message={ticketsErrorMessage}
-              onRetry={() => {
-                void ticketsQuery.refetch();
-              }}
-            />
-          ) : null}
-          {ticketsQuery.data ? (
-            <RecentTicketsTable tickets={ticketsQuery.data.items} />
+          {dashboardQuery.isLoading ? <TicketTableSkeleton rows={5} /> : null}
+          {dashboardQuery.isError ? null : null}
+          {dashboardQuery.data ? (
+            <RecentTicketsTable tickets={dashboardQuery.data.recentTickets} />
           ) : null}
         </section>
       </div>

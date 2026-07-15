@@ -30,6 +30,9 @@ services:
       MONGODB_URI: mongodb://mongodb:27017/support-tickets
       CORS_ORIGIN: http://localhost:3000
       LOG_LEVEL: info
+      JWT_SECRET: change-me-docker-jwt-secret-at-least-32-chars
+      SEED_DEFAULT_PASSWORD: Password123!
+      LOG_LEVEL: info
     depends_on:
       mongodb:
         condition: service_healthy

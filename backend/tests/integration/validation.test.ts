@@ -1,5 +1,4 @@
 import { Types } from 'mongoose';
-import request from 'supertest';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 import { ErrorCodes } from '@/constants/error-codes.js';
@@ -8,6 +7,7 @@ import {
   createTestApp,
   createTicketViaApi,
   expectValidationError,
+  loginViaApi,
 } from '../helpers/test-app.js';
 import {
   clearTestDatabase,
@@ -39,62 +39,82 @@ describe('API validation integration', () => {
 
   it('AC-8.1: missing title on create returns 400 with field detail', async () => {
     const app = createTestApp();
-    const { title: _title, ...payload } = buildCreateTicketPayload(users.employeeId);
-    const response = await request(app).post('/tickets').send(payload);
+    const employeeAgent = await loginViaApi(app, users.employeeEmail);
+    const { title: _title, ...payload } = buildCreateTicketPayload();
+    const response = await employeeAgent.post('/tickets').send(payload);
 
     expectValidationError(response, 'title');
   });
 
   it('AC-8.2: missing description on create returns 400', async () => {
     const app = createTestApp();
-    const { description: _description, ...payload } = buildCreateTicketPayload(users.employeeId);
-    const response = await request(app).post('/tickets').send(payload);
+    const employeeAgent = await loginViaApi(app, users.employeeEmail);
+    const { description: _description, ...payload } = buildCreateTicketPayload();
+    const response = await employeeAgent.post('/tickets').send(payload);
 
     expectValidationError(response, 'description');
   });
 
   it('AC-8.3: title shorter than 3 characters returns 400', async () => {
     const app = createTestApp();
-    const response = await request(app)
+    const employeeAgent = await loginViaApi(app, users.employeeEmail);
+    const response = await employeeAgent
       .post('/tickets')
-      .send(buildCreateTicketPayload(users.employeeId, { title: 'ab' }));
+      .send(buildCreateTicketPayload({ title: 'ab' }));
 
     expectValidationError(response, 'title');
   });
 
   it('AC-8.4: title longer than 200 characters returns 400', async () => {
     const app = createTestApp();
-    const response = await request(app)
+    const employeeAgent = await loginViaApi(app, users.employeeEmail);
+    const response = await employeeAgent
       .post('/tickets')
-      .send(buildCreateTicketPayload(users.employeeId, { title: 'a'.repeat(201) }));
+      .send(buildCreateTicketPayload({ title: 'a'.repeat(201) }));
 
     expectValidationError(response, 'title');
   });
 
   it('AC-8.5: description shorter than 10 characters returns 400', async () => {
     const app = createTestApp();
-    const response = await request(app)
+    const employeeAgent = await loginViaApi(app, users.employeeEmail);
+    const response = await employeeAgent
       .post('/tickets')
-      .send(buildCreateTicketPayload(users.employeeId, { description: 'short' }));
+      .send(buildCreateTicketPayload({ description: 'short' }));
 
     expectValidationError(response, 'description');
   });
 
   it('AC-8.6: invalid priority enum returns 400', async () => {
     const app = createTestApp();
-    const response = await request(app)
+    const employeeAgent = await loginViaApi(app, users.employeeEmail);
+    const response = await employeeAgent
       .post('/tickets')
-      .send(buildCreateTicketPayload(users.employeeId, { priority: 'Urgent' }));
+      .send(buildCreateTicketPayload({ priority: 'Urgent' as never }));
 
     expectValidationError(response, 'priority');
   });
 
-  it('AC-8.7: non-existent createdBy returns 400 USER_NOT_FOUND', async () => {
+  it('AC-8.7: unknown createdBy field returns 400 validation error', async () => {
     const app = createTestApp();
-    const missingUserId = new Types.ObjectId().toString();
-    const response = await request(app)
+    const employeeAgent = await loginViaApi(app, users.employeeEmail);
+    const response = await employeeAgent
       .post('/tickets')
-      .send(buildCreateTicketPayload(missingUserId));
+      .send({ ...buildCreateTicketPayload(), createdBy: users.employeeId });
+
+    expectValidationError(response);
+  });
+
+  it('AC-8.8: non-existent assignedTo on assign returns 400 USER_NOT_FOUND', async () => {
+    const app = createTestApp();
+    const adminAgent = await loginViaApi(app, users.adminEmail);
+    const employeeAgent = await loginViaApi(app, users.employeeEmail);
+    const ticketId = await createTicketViaApi(employeeAgent);
+    const missingUserId = new Types.ObjectId().toString();
+
+    const response = await adminAgent
+      .patch(`/tickets/${ticketId}/assign`)
+      .send({ assignedTo: missingUserId });
 
     expect(response.status).toBe(400);
     expect(response.body).toMatchObject({
@@ -103,33 +123,33 @@ describe('API validation integration', () => {
     });
   });
 
-  it('AC-8.8: non-existent assignedTo returns 400 USER_NOT_FOUND', async () => {
+  it('AC-8.8b: assigning ticket to employee returns 400 validation error', async () => {
     const app = createTestApp();
-    const missingUserId = new Types.ObjectId().toString();
-    const response = await request(app)
-      .post('/tickets')
-      .send(buildCreateTicketPayload(users.employeeId, { assignedTo: missingUserId }));
+    const adminAgent = await loginViaApi(app, users.adminEmail);
+    const employeeAgent = await loginViaApi(app, users.employeeEmail);
+    const ticketId = await createTicketViaApi(employeeAgent);
 
-    expect(response.status).toBe(400);
-    expect(response.body).toMatchObject({
-      success: false,
-      error: { code: ErrorCodes.USER_NOT_FOUND },
-    });
+    const response = await adminAgent
+      .patch(`/tickets/${ticketId}/assign`)
+      .send({ assignedTo: users.employeeId });
+
+    expectValidationError(response, 'assignedTo');
   });
 
   it('AC-8.9: malformed ticket id returns 400 with id field detail', async () => {
     const app = createTestApp();
-    const response = await request(app).get('/tickets/not-a-valid-id');
+    const employeeAgent = await loginViaApi(app, users.employeeEmail);
+    const response = await employeeAgent.get('/tickets/not-a-valid-id');
 
     expectValidationError(response, 'id');
   });
 
   it('AC-8.10: empty comment message returns 400', async () => {
     const app = createTestApp();
-    const ticketId = await createTicketViaApi(app, users.employeeId);
-    const response = await request(app).post(`/tickets/${ticketId}/comments`).send({
+    const employeeAgent = await loginViaApi(app, users.employeeEmail);
+    const ticketId = await createTicketViaApi(employeeAgent);
+    const response = await employeeAgent.post(`/tickets/${ticketId}/comments`).send({
       message: '   ',
-      createdBy: users.employeeId,
     });
 
     expectValidationError(response, 'message');
@@ -137,9 +157,10 @@ describe('API validation integration', () => {
 
   it('AC-8.11: validation errors include details array with field and message', async () => {
     const app = createTestApp();
-    const response = await request(app)
+    const employeeAgent = await loginViaApi(app, users.employeeEmail);
+    const response = await employeeAgent
       .post('/tickets')
-      .send(buildCreateTicketPayload(users.employeeId, { title: 'ab' }));
+      .send(buildCreateTicketPayload({ title: 'ab' }));
 
     expectValidationError(response, 'title');
     const details = (response.body as { error: { details: { field: string; message: string }[] } })

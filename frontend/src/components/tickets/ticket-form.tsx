@@ -12,7 +12,6 @@ import {
   type UpdateTicketFormValues,
 } from '@/schemas/ticket.schema';
 import { TicketPriorities } from '@/types/ticket.types';
-import type { User } from '@/types/user.types';
 
 const inputClassName =
   'h-9 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive';
@@ -21,7 +20,6 @@ const textareaClassName =
   'min-h-32 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive';
 
 type TicketFormBaseProps = {
-  users: User[];
   isSubmitting?: boolean;
   className?: string;
 };
@@ -57,7 +55,6 @@ export function TicketForm(props: TicketFormProps) {
 }
 
 function CreateTicketForm({
-  users,
   defaultValues,
   isSubmitting = false,
   onSubmit,
@@ -69,8 +66,6 @@ function CreateTicketForm({
       title: '',
       description: '',
       priority: 'Medium',
-      createdBy: defaultValues?.createdBy ?? '',
-      assignedTo: defaultValues?.assignedTo ?? '',
       ...defaultValues,
     },
   });
@@ -116,60 +111,23 @@ function CreateTicketForm({
         <FieldError message={errors.description?.message} />
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-2">
-          <label htmlFor="priority" className="text-sm font-medium">
-            Priority
-          </label>
-          <select
-            id="priority"
-            className={inputClassName}
-            aria-invalid={Boolean(errors.priority)}
-            {...register('priority')}
-          >
-            {Object.values(TicketPriorities).map((priority) => (
-              <option key={priority} value={priority}>
-                {priority}
-              </option>
-            ))}
-          </select>
-          <FieldError message={errors.priority?.message} />
-        </div>
-
-        <div className="space-y-2">
-          <label htmlFor="createdBy" className="text-sm font-medium">
-            Created by
-          </label>
-          <select
-            id="createdBy"
-            className={inputClassName}
-            aria-invalid={Boolean(errors.createdBy)}
-            {...register('createdBy')}
-          >
-            <option value="">Select user</option>
-            {users.map((user) => (
-              <option key={user._id} value={user._id}>
-                {user.name} ({user.role})
-              </option>
-            ))}
-          </select>
-          <FieldError message={errors.createdBy?.message} />
-        </div>
-      </div>
-
       <div className="space-y-2">
-        <label htmlFor="assignedTo" className="text-sm font-medium">
-          Assignee (optional)
+        <label htmlFor="priority" className="text-sm font-medium">
+          Priority
         </label>
-        <select id="assignedTo" className={inputClassName} {...register('assignedTo')}>
-          <option value="">Unassigned</option>
-          {users.map((user) => (
-            <option key={user._id} value={user._id}>
-              {user.name} ({user.role})
+        <select
+          id="priority"
+          className={inputClassName}
+          aria-invalid={Boolean(errors.priority)}
+          {...register('priority')}
+        >
+          {Object.values(TicketPriorities).map((priority) => (
+            <option key={priority} value={priority}>
+              {priority}
             </option>
           ))}
         </select>
-        <FieldError message={errors.assignedTo?.message} />
+        <FieldError message={errors.priority?.message} />
       </div>
 
       <div className="flex justify-end gap-2">
